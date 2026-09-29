@@ -8,8 +8,8 @@ namespace FinalVFX
     public class StaminaBar : MonoBehaviour
     {
         [SerializeField] private StaminaComponent _stamina;
-        private Slider _slider;
 
+        private Slider _slider;
 
         private void Awake()
         {
@@ -20,33 +20,26 @@ namespace FinalVFX
             _slider.interactable = false;
         }
 
-        private void Start()
-        {
-            if (_stamina != null)
-            {
-                Refresh(_stamina.Current, _stamina.Maximum);
-            }
-        }
-
-        private void Refresh(float current, float maximum)
-        {
-            _slider.SetValueWithoutNotify(maximum > 0f ? current / maximum : 0f);
-        }
-
         private void OnEnable()
         {
-            if (_stamina == null) return;
-
             _stamina.Changed += Refresh;
+            Refresh(_stamina.Current, _stamina.Maximum);
+        }
+
+        private void Start()
+        {
+            // En OnEnable la stamina puede no haber pasado por su Awake todavía, así que se refresca de nuevo
             Refresh(_stamina.Current, _stamina.Maximum);
         }
 
         private void OnDisable()
         {
-            if (_stamina != null)
-            {
-                _stamina.Changed -= Refresh;
-            }
+            _stamina.Changed -= Refresh;
+        }
+
+        private void Refresh(float current, float maximum)
+        {
+            _slider.SetValueWithoutNotify(current / maximum);
         }
     }
 }
