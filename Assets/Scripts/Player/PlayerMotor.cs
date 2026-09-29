@@ -12,6 +12,7 @@ namespace FinalVFX.Player
         [SerializeField, Min(0f)] private float _moveSpeed;
         [SerializeField, Min(0f)] private float _rotationSpeed;
         [SerializeField] private float _gravity;
+        [SerializeField] private Transform _movementReference;
 
         [Header("Sprint")]
         [SerializeField, Min(0f)] private float _sprintSpeed;
@@ -49,7 +50,13 @@ namespace FinalVFX.Player
             if (deltaTime <= 0f) return;
 
             Vector2 input = Vector2.ClampMagnitude(_inputManager.Movement, 1f);
-            Vector3 direction = new Vector3(input.x, 0f, input.y);
+
+            Vector3 forward = _movementReference != null ? Vector3.ProjectOnPlane(_movementReference.forward, Vector3.up).normalized : Vector3.forward;
+
+            Vector3 right = Vector3.Cross(Vector3.up, forward);
+
+            Vector3 direction = right * input.x + forward * input.y;
+
             bool hasMovement = direction.sqrMagnitude > 0.0001f;
 
             if (!hasMovement)

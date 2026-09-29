@@ -9,6 +9,8 @@ namespace FinalVFX.Player
         public Vector2 Movement => isActiveAndEnabled && _controls != null ? _controls.Player.Movement.ReadValue<Vector2>() : Vector2.zero;
         public bool SprintHeld => isActiveAndEnabled && _controls != null && _controls.Player.Sprint.IsPressed();
         public bool JumpPressed => isActiveAndEnabled && _controls != null && _controls.Player.Jump.WasPressedThisFrame();
+        public Vector2 Look => isActiveAndEnabled && _controls != null ? _controls.Player.Look.ReadValue<Vector2>() : Vector2.zero;
+        public bool IsLookingFromMouse => isActiveAndEnabled && _controls != null && _controls.Player.Look.activeControl?.device is UnityEngine.InputSystem.Mouse;
 
         private void Awake()
         {
