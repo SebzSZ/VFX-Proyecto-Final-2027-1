@@ -133,6 +133,16 @@ namespace FinalVFX.Player
                     ""interactions"": """",
                     ""initialStateCheck"": true,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""Consume"",
+                    ""type"": ""Button"",
+                    ""id"": ""54894b13-1762-40c3-a078-8e41d720f569"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -267,6 +277,28 @@ namespace FinalVFX.Player
                     ""action"": ""Look"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1767fd17-c875-49a1-9fc5-9909ea9c77ae"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""Consume"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bf35bede-6a6a-4471-a162-db9dca0b908b"",
+                    ""path"": ""<Gamepad>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Consume"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -302,6 +334,7 @@ namespace FinalVFX.Player
             m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
             m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
             m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
+            m_Player_Consume = m_Player.FindAction("Consume", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -386,6 +419,7 @@ namespace FinalVFX.Player
         private readonly InputAction m_Player_Sprint;
         private readonly InputAction m_Player_Jump;
         private readonly InputAction m_Player_Look;
+        private readonly InputAction m_Player_Consume;
         /// <summary>
         /// Provides access to input actions defined in input action map "Player".
         /// </summary>
@@ -413,6 +447,10 @@ namespace FinalVFX.Player
             /// Provides access to the underlying input action "Player/Look".
             /// </summary>
             public InputAction @Look => m_Wrapper.m_Player_Look;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/Consume".
+            /// </summary>
+            public InputAction @Consume => m_Wrapper.m_Player_Consume;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -451,6 +489,9 @@ namespace FinalVFX.Player
                 @Look.started += instance.OnLook;
                 @Look.performed += instance.OnLook;
                 @Look.canceled += instance.OnLook;
+                @Consume.started += instance.OnConsume;
+                @Consume.performed += instance.OnConsume;
+                @Consume.canceled += instance.OnConsume;
             }
 
             /// <summary>
@@ -474,6 +515,9 @@ namespace FinalVFX.Player
                 @Look.started -= instance.OnLook;
                 @Look.performed -= instance.OnLook;
                 @Look.canceled -= instance.OnLook;
+                @Consume.started -= instance.OnConsume;
+                @Consume.performed -= instance.OnConsume;
+                @Consume.canceled -= instance.OnConsume;
             }
 
             /// <summary>
@@ -568,6 +612,13 @@ namespace FinalVFX.Player
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnLook(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Consume" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnConsume(InputAction.CallbackContext context);
         }
     }
 }

@@ -11,6 +11,7 @@ namespace FinalVFX.Player
         public bool JumpPressed => _controls.Player.Jump.WasPressedThisFrame();
         public Vector2 Look => _controls.Player.Look.ReadValue<Vector2>();
         public bool IsLookingFromMouse => _controls.Player.Look.activeControl?.device is UnityEngine.InputSystem.Mouse;
+        public bool ConsumablePressed => _controls.Player.Consume.WasPressedThisFrame();
 
         private void Awake()
         {
