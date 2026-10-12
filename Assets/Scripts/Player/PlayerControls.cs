@@ -143,6 +143,16 @@ namespace FinalVFX.Player
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""Dodge"",
+                    ""type"": ""Button"",
+                    ""id"": ""1c96ab6e-0f1f-422f-8db2-dadccf3a2c99"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -299,6 +309,28 @@ namespace FinalVFX.Player
                     ""action"": ""Consume"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""eefe99ea-b7ae-40bb-b56f-7c9141ee099b"",
+                    ""path"": ""<Keyboard>/leftCtrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""Dodge"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""97c5e0c9-f1d9-4110-a9ac-8785e1852001"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Dodge"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -335,6 +367,7 @@ namespace FinalVFX.Player
             m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
             m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
             m_Player_Consume = m_Player.FindAction("Consume", throwIfNotFound: true);
+            m_Player_Dodge = m_Player.FindAction("Dodge", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -420,6 +453,7 @@ namespace FinalVFX.Player
         private readonly InputAction m_Player_Jump;
         private readonly InputAction m_Player_Look;
         private readonly InputAction m_Player_Consume;
+        private readonly InputAction m_Player_Dodge;
         /// <summary>
         /// Provides access to input actions defined in input action map "Player".
         /// </summary>
@@ -451,6 +485,10 @@ namespace FinalVFX.Player
             /// Provides access to the underlying input action "Player/Consume".
             /// </summary>
             public InputAction @Consume => m_Wrapper.m_Player_Consume;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/Dodge".
+            /// </summary>
+            public InputAction @Dodge => m_Wrapper.m_Player_Dodge;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -492,6 +530,9 @@ namespace FinalVFX.Player
                 @Consume.started += instance.OnConsume;
                 @Consume.performed += instance.OnConsume;
                 @Consume.canceled += instance.OnConsume;
+                @Dodge.started += instance.OnDodge;
+                @Dodge.performed += instance.OnDodge;
+                @Dodge.canceled += instance.OnDodge;
             }
 
             /// <summary>
@@ -518,6 +559,9 @@ namespace FinalVFX.Player
                 @Consume.started -= instance.OnConsume;
                 @Consume.performed -= instance.OnConsume;
                 @Consume.canceled -= instance.OnConsume;
+                @Dodge.started -= instance.OnDodge;
+                @Dodge.performed -= instance.OnDodge;
+                @Dodge.canceled -= instance.OnDodge;
             }
 
             /// <summary>
@@ -619,6 +663,13 @@ namespace FinalVFX.Player
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnConsume(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Dodge" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnDodge(InputAction.CallbackContext context);
         }
     }
 }

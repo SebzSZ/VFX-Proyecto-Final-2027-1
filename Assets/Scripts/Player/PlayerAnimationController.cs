@@ -26,6 +26,9 @@ namespace FinalVFX.Player
         private static readonly int Jump =
             Animator.StringToHash("Base Layer.Jump");
 
+        private static readonly int Dodge =
+            Animator.StringToHash("Base Layer.Dodge");
+
         private int _currentState;
 
         private void Awake()
@@ -59,7 +62,11 @@ namespace FinalVFX.Player
 
             if (_player.CanAct)
             {
-                if (!_motor.IsGrounded)
+                if (_player.IsDodging)
+                {
+                    nextState = Dodge;
+                }
+                else if (!_motor.IsGrounded)
                 {
                     nextState = Jump;
                 }
@@ -74,6 +81,10 @@ namespace FinalVFX.Player
                     if (moving)
                         nextState = _player.IsSprinting ? Run : Jogging;
                 }
+            }
+            else if (_player.IsDodging)
+            {
+                nextState = Dodge;
             }
 
             if (nextState == _currentState)
