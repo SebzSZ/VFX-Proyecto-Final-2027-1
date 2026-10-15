@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68e8c5d5ea608f4408d8fac2642f19b0, type: 3}
+  m_Name: SO_Scythe
+  m_EditorClassIdentifier: Assembly-CSharp::FinalVFX.Combat.WeaponDefinition
+  _displayName: "Guada\xF1a del Cosechador Nocturno"
+  _equippedPrefab: {fileID: 8327987822983675449, guid: ef0334fdcbac88f40b4f72079365b3d6, type: 3}
+  _maximumHealth: 80
+  _maximumStamina: 120
+  _localPosition: {x: 0.47335157, y: 0.7270752, z: 0.13155471}
+  _localEulerAngles: {x: 55.952694, y: 254.46826, z: 153.2404}
+  _localScale: {x: 0.65, y: 0.65, z: 0.65}

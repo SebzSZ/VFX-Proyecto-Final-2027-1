@@ -3,7 +3,22 @@ guid: 7b1f5b8c1ac7a98448c2e4a477954423
 ModelImporter:
   serializedVersion: 24300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CentroEspada
+    second: {fileID: 2100000, guid: 6d0529768b7480b4f9de32b4bcbca75e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Metal
+    second: {fileID: 2100000, guid: 0684ef0b21d30b947bdfb7e8fc522333, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Palo
+    second: {fileID: 2100000, guid: 768fdb04591d398468cbc0c39b1756b6, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

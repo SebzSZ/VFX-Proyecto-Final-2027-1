@@ -73,6 +73,15 @@ namespace FinalVFX.Combat
             SetCurrent(Maximum);
         }
 
+        public void SetMaximumAndRestore(float maximum)
+        {
+            _maxStamina = maximum;
+            _lastActiveFrame = -1;
+            _regenerationAllowedAt = 0f;
+            Current = maximum;
+            Changed?.Invoke(Current, Maximum);
+        }
+
         private void SetCurrent(float value)
         {
             float nextValue = Mathf.Clamp(value, 0f, Maximum);

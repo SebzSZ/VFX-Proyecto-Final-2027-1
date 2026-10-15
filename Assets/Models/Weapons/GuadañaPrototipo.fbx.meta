@@ -3,7 +3,17 @@ guid: 7f4b39f7500cd3d4caba5da2b07714fd
 ModelImporter:
   serializedVersion: 24300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Metal
+    second: {fileID: 2100000, guid: 4a0a3d2e68ad4ef4aaa9b23e730413ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Palo
+    second: {fileID: 2100000, guid: 8c838ca200152c44998d0dbf6c06ec97, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

@@ -1,0 +1,27 @@
+{
+    "name": "INPUT_WeaponSelection",
+    "maps": [
+        {
+            "name": "WeaponSelection",
+            "id": "cf19bef0-f7b4-4caf-bef3-99e531856590",
+            "actions": [
+                { "name": "Navigate", "type": "Value", "id": "f237b235-ea68-4591-a68e-519e4e285877", "expectedControlType": "Vector2", "processors": "", "interactions": "", "initialStateCheck": true },
+                { "name": "Confirm", "type": "Button", "id": "a9cb7080-a844-4b6f-a414-513663ad9d4f", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false }
+            ],
+            "bindings": [
+                { "name": "AD", "path": "2DVector", "action": "Navigate", "isComposite": true },
+                { "name": "left", "path": "<Keyboard>/a", "action": "Navigate", "isPartOfComposite": true },
+                { "name": "right", "path": "<Keyboard>/d", "action": "Navigate", "isPartOfComposite": true },
+                { "name": "Arrows", "path": "2DVector", "action": "Navigate", "isComposite": true },
+                { "name": "left", "path": "<Keyboard>/leftArrow", "action": "Navigate", "isPartOfComposite": true },
+                { "name": "right", "path": "<Keyboard>/rightArrow", "action": "Navigate", "isPartOfComposite": true },
+                { "path": "<Gamepad>/leftStick", "action": "Navigate" },
+                { "path": "<Gamepad>/dpad", "action": "Navigate" },
+                { "path": "<Keyboard>/enter", "action": "Confirm" },
+                { "path": "<Mouse>/leftButton", "action": "Confirm" },
+                { "path": "<Gamepad>/buttonSouth", "action": "Confirm" }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

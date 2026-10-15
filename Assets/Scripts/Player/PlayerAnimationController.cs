@@ -60,13 +60,13 @@ namespace FinalVFX.Player
         {
             int nextState = Idle;
 
-            if (_player.CanAct)
+            if (_player.IsDodging)
             {
-                if (_player.IsDodging)
-                {
-                    nextState = Dodge;
-                }
-                else if (!_motor.IsGrounded)
+                nextState = Dodge;
+            }
+            else if (_player.CanAct)
+            {
+                if (!_motor.IsGrounded)
                 {
                     nextState = Jump;
                 }
@@ -81,10 +81,6 @@ namespace FinalVFX.Player
                     if (moving)
                         nextState = _player.IsSprinting ? Run : Jogging;
                 }
-            }
-            else if (_player.IsDodging)
-            {
-                nextState = Dodge;
             }
 
             if (nextState == _currentState)

@@ -32,6 +32,11 @@ namespace FinalVFX.Combat
 
         public float ReceiveDamage(float amount)
         {
+            return ReceiveDamage(amount, 0f);
+        }
+
+        public float ReceiveDamage(float amount, float minimumInvulnerabilityDuration)
+        {
             if (amount <= 0f || IsDead || _invulnerability.IsInvulnerable)
                 return 0f;
 
@@ -39,8 +44,9 @@ namespace FinalVFX.Combat
             Current -= applied;
             bool died = IsDead;
 
-            if (!died && _damageInvulnerabilityDuration > 0f)
-                _invulnerability.SetWindow(this, Time.time, Time.time + _damageInvulnerabilityDuration);
+            float protectionDuration = Mathf.Max(_damageInvulnerabilityDuration, minimumInvulnerabilityDuration);
+            if (!died && protectionDuration > 0f)
+                _invulnerability.SetWindow(this, Time.time, Time.time + protectionDuration);
 
             Changed?.Invoke(Current, Maximum);
             Damaged?.Invoke(applied);
@@ -69,6 +75,13 @@ namespace FinalVFX.Combat
             if (Current == Maximum)
                 return;
 
+            Current = Maximum;
+            Changed?.Invoke(Current, Maximum);
+        }
+
+        public void SetMaximumAndRestore(float maximum)
+        {
+            _maxHealth = maximum;
             Current = Maximum;
             Changed?.Invoke(Current, Maximum);
         }

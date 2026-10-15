@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68e8c5d5ea608f4408d8fac2642f19b0, type: 3}
+  m_Name: SO_Sword
+  m_EditorClassIdentifier: Assembly-CSharp::FinalVFX.Combat.WeaponDefinition
+  _displayName: Espada de Fuerzas Divididas
+  _equippedPrefab: {fileID: 1523577948448731715, guid: c4c320c470fec9f45af0194a4ea7d4f5, type: 3}
+  _maximumHealth: 120
+  _maximumStamina: 80
+  _localPosition: {x: 0.1659945, y: 0.039739896, z: -0.010371929}
+  _localEulerAngles: {x: 14.600855, y: 7.14395, z: 193.89555}
+  _localScale: {x: 0.45, y: 0.45, z: 0.45}

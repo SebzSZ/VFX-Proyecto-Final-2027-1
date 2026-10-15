@@ -8,6 +8,7 @@ namespace FinalVFX.UI
     public class HealthBar : MonoBehaviour
     {
         [SerializeField] private HealthComponent _health;
+        [SerializeField] private Text _valueLabel;
         private Slider _slider;
 
         private void Awake()
@@ -17,6 +18,7 @@ namespace FinalVFX.UI
             _slider.maxValue = 1f;
             _slider.wholeNumbers = false;
             _slider.interactable = false;
+            if (_valueLabel == null) _valueLabel = ResourceBarValue.Create(transform);
         }
 
         private void Start()
@@ -26,7 +28,8 @@ namespace FinalVFX.UI
 
         private void Refresh(float current, float maximum)
         {
-            _slider.SetValueWithoutNotify(current / maximum);
+            _slider.SetValueWithoutNotify(maximum > 0f ? current / maximum : 0f);
+            ResourceBarValue.Refresh(_valueLabel, current, maximum);
         }
 
         private void OnEnable()

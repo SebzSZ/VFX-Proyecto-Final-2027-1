@@ -23,10 +23,11 @@ namespace FinalVFX.Player
         private HealingConsumable _healing;
         private PlayerDodge _dodge;
         private bool _hasFocus;
+        private bool _sequenceLocked;
 
         public bool IsSprinting => _locomotion.IsSprinting;
         public bool IsDodging => _dodge.IsDodging;
-        public bool CanAct => isActiveAndEnabled && _gameplayEnabled && _hasFocus && !_health.IsDead && !_dodge.IsDodging && Time.timeScale > 0f;
+        public bool CanAct => isActiveAndEnabled && !_sequenceLocked && _gameplayEnabled && _hasFocus && !_health.IsDead && !_dodge.IsDodging && Time.timeScale > 0f;
 
         private void Awake()
         {
@@ -41,6 +42,9 @@ namespace FinalVFX.Player
 
         private void Update()
         {
+            if (_sequenceLocked)
+                return;
+
             float deltaTime = Time.deltaTime;
             if (deltaTime <= 0f || _health.IsDead)
                 return;
@@ -101,6 +105,20 @@ namespace FinalVFX.Player
             SetGameplayEnabled(true);
         }
 
+        public void SetSequenceLocked(bool locked)
+        {
+            _sequenceLocked = locked;
+
+            if (locked)
+            {
+                _dodge.Cancel();
+                _motor.ResetMotion();
+                _locomotion.ResetState();
+            }
+
+            ApplyCursorState();
+        }
+
         private void HandleDeath()
         {
             SetGameplayEnabled(false);
@@ -133,7 +151,7 @@ namespace FinalVFX.Player
 
         private void ApplyCursorState()
         {
-            bool locked = isActiveAndEnabled && _gameplayEnabled && _hasFocus;
+            bool locked = isActiveAndEnabled && (_gameplayEnabled || _sequenceLocked) && _hasFocus;
             Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !locked;
         }

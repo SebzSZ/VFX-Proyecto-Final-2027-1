@@ -2,6 +2,7 @@
 
 namespace FinalVFX.Player
 {
+    [DisallowMultipleComponent]
     public class PlayerInputManager : MonoBehaviour
     {
         private PlayerControls _controls;

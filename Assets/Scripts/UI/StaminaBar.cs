@@ -8,6 +8,7 @@ namespace FinalVFX
     public class StaminaBar : MonoBehaviour
     {
         [SerializeField] private StaminaComponent _stamina;
+        [SerializeField] private Text _valueLabel;
 
         private Slider _slider;
 
@@ -18,6 +19,7 @@ namespace FinalVFX
             _slider.maxValue = 1f;
             _slider.wholeNumbers = false;
             _slider.interactable = false;
+            if (_valueLabel == null) _valueLabel = UI.ResourceBarValue.Create(transform);
         }
 
         private void OnEnable()
@@ -39,7 +41,8 @@ namespace FinalVFX
 
         private void Refresh(float current, float maximum)
         {
-            _slider.SetValueWithoutNotify(current / maximum);
+            _slider.SetValueWithoutNotify(maximum > 0f ? current / maximum : 0f);
+            UI.ResourceBarValue.Refresh(_valueLabel, current, maximum);
         }
     }
 }
