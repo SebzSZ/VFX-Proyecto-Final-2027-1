@@ -16,7 +16,7 @@ MonoBehaviour:
   _equippedPrefab: {fileID: 1523577948448731715, guid: c4c320c470fec9f45af0194a4ea7d4f5, type: 3}
   _maximumHealth: 120
   _maximumStamina: 80
-  _localPosition: {x: 0.1659945, y: 0.039739896, z: -0.010371929}
-  _localEulerAngles: {x: 14.600855, y: 7.14395, z: 193.89555}
-  _localScale: {x: 0.45, y: 0.45, z: 0.45}
+  _localPosition: {x: -0.06, y: 0.13, z: -0.16}
+  _localEulerAngles: {x: -40, y: 75, z: -155}
+  _localScale: {x: 0.5, y: 0.5, z: 0.5}
   _poseType: 1
