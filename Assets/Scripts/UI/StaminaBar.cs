@@ -1,6 +1,7 @@
 ﻿using FinalVFX.Combat;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace FinalVFX
 {
@@ -8,7 +9,7 @@ namespace FinalVFX
     public class StaminaBar : MonoBehaviour
     {
         [SerializeField] private StaminaComponent _stamina;
-        [SerializeField] private Text _valueLabel;
+        [SerializeField] private TMP_Text _valueLabel;
 
         private Slider _slider;
 

@@ -19,6 +19,10 @@ namespace FinalVFX.Combat
         [SerializeField] private Vector3 _localEulerAngles;
         [SerializeField] private Vector3 _localScale = Vector3.one;
 
+        [Header("Animation")]
+        [SerializeField] private WeaponPoseType _poseType;
+
+
         public string DisplayName => _displayName;
         public GameObject EquippedPrefab => _equippedPrefab;
         public float MaximumHealth => _maximumHealth;
@@ -26,5 +30,13 @@ namespace FinalVFX.Combat
         public Vector3 LocalPosition => _localPosition;
         public Quaternion LocalRotation => Quaternion.Euler(_localEulerAngles);
         public Vector3 LocalScale => _localScale;
+        public WeaponPoseType PoseType => _poseType;
+
+        public enum WeaponPoseType
+        {
+            None = 0,
+            Sword = 1,
+            Scythe = 2
+        }
     }
 }

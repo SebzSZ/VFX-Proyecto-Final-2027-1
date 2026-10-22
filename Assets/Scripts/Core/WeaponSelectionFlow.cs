@@ -1,13 +1,12 @@
-﻿using System.Collections;
+using System.Collections;
 using FinalVFX.Combat;
 using FinalVFX.Player;
-using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace FinalVFX.Core
 {
+    [DisallowMultipleComponent]
     public sealed class WeaponSelectionFlow : MonoBehaviour
     {
         private enum FlowState
@@ -20,61 +19,28 @@ namespace FinalVFX.Core
             Failed
         }
 
+        [Header("Sequence components")]
+        [SerializeField] private WeaponSelectionInput _input;
+        [SerializeField] private WeaponSelectionPresentation _presentation;
+        [SerializeField] private WeaponSelectionCamera _camera;
+
         [Header("Player")]
         [SerializeField] private PlayerController _player;
-        [SerializeField] private PlayerCameraController _cameraController;
         [SerializeField] private PlayerEquipment _equipment;
-        [SerializeField] private HealthComponent _health;
         [SerializeField] private InvulnerabilityComponent _invulnerability;
         [SerializeField] private CharacterController _characterController;
         [SerializeField] private Transform _startPos;
 
-        [Header("Exactly two displays: left, right")]
-        [SerializeField] private WeaponDisplay[] _displays;
-
-        [Header("Selection input")]
-        [SerializeField] private InputActionReference _navigateReference;
-        [SerializeField] private InputActionReference _confirmReference;
-        [SerializeField, Min(1f)] private float _mouseSelectionDistance = 30f;
-
-        [Header("Cameras")]
-        [SerializeField] private CinemachineBrain _brain;
-        [SerializeField] private Camera _outputCamera;
-        [SerializeField] private CinemachineCamera _selectionCamera;
-        [SerializeField] private CinemachineCamera _gameplayCamera;
-        [SerializeField] private Transform _firstPersonPose;
-        [SerializeField, Min(0.1f)] private float _lookSharpness = 12f;
-
-        [Header("Hide body while camera is inside it")]
-        [SerializeField] private Renderer[] _playerRenderers;
-        [SerializeField] private Transform _headPoint;
-        [SerializeField, Min(0.1f)] private float _revealDistance = 0.7f;
-
-        [Header("Scene objects")]
+        [Header("Encounter")]
         [SerializeField] private CanvasGroup _blackScreen;
-        [SerializeField] private GameObject _selectionUI;
         [SerializeField] private GameObject _gameplayHUD;
         [SerializeField] private GameObject _encounterActors;
-
-        [Header("Durations")]
         [SerializeField, Min(0.01f)] private float _fadeInDuration = 0.5f;
-        [SerializeField, Min(0.01f)] private float _weaponFadeDuration = 1f;
-        [SerializeField, Min(0.01f)] private float _weaponAppearDuration = 1.5f;
-        [SerializeField, Min(0.01f)] private float _initialAimDuration = 0.5f;
         [SerializeField, Min(0f)] private float _beforeThirdPersonDelay = 0.3f;
         [SerializeField, Min(0.01f)] private float _deathFadeDuration = 0.8f;
-        [SerializeField, Min(1f)] private float _cameraTimeout = 15f;
 
-        private InputAction _navigate;
-        private InputAction _confirm;
-        private InputAction _mouseNavigate;
-        private float _mouseTravel;
-        private float _lastMouseMotion;
         private FlowState _state = FlowState.Entering;
-
         private int _selectedIndex = -1;
-        private bool _inputArmed;
-        private bool _navigationHeld;
         private bool _configured;
         private bool _started;
 
@@ -85,369 +51,127 @@ namespace FinalVFX.Core
                 enabled = false;
                 return;
             }
-
+            // Explicit initialization avoids depending on component Awake ordering.
+            _input.Initialize();
+            _presentation.Initialize();
+            _camera.Initialize();
             _configured = true;
-
-            // Instancias propias: no alteran las acciones de otros sistemas.
-            _navigate = _navigateReference.action.Clone();
-            _confirm = _confirmReference.action.Clone();
-            _mouseNavigate = new InputAction("WeaponSelectionMouse", InputActionType.Value,
-                "<Mouse>/delta", expectedControlType: "Vector2");
-
             _blackScreen.alpha = 1f;
             _blackScreen.blocksRaycasts = true;
             _blackScreen.interactable = false;
-
-            _selectionCamera.Priority = 100;
-            _gameplayCamera.Priority = 10;
-
-            _selectionUI.SetActive(false);
             _gameplayHUD.SetActive(false);
             _encounterActors.SetActive(false);
         }
 
         private bool ValidateSetup()
         {
-            Object[] required =
-            {
-                _player, _cameraController, _equipment, _health,
-                _invulnerability, _characterController, _startPos,
-                _navigateReference, _confirmReference,
-                _brain, _outputCamera, _selectionCamera,
-                _gameplayCamera, _firstPersonPose, _headPoint,
-                _blackScreen, _selectionUI, _gameplayHUD,
-                _encounterActors
-            };
-
+            Object[] required = { _input, _presentation, _camera, _player, _equipment,
+                _invulnerability, _characterController, _startPos, _blackScreen,
+                _gameplayHUD, _encounterActors };
             foreach (Object reference in required)
             {
-                if (reference == null)
-                {
-                    Debug.LogError(
-                        "WeaponSelectionFlow tiene referencias sin asignar.",
-                        this);
-                    return false;
-                }
-            }
-
-            if (_navigateReference.action == null ||
-                _confirmReference.action == null ||
-                !_equipment.HasSocket ||
-                _selectionCamera == _gameplayCamera ||
-                _displays == null ||
-                _displays.Length != 2)
-            {
-                Debug.LogError(
-                    "Revisa acciones, socket, cámaras y las dos exhibiciones.",
-                    this);
+                if (reference != null) continue;
+                Debug.LogError("WeaponSelectionFlow tiene referencias sin asignar.", this);
                 return false;
             }
-
-            foreach (WeaponDisplay display in _displays)
+            if (!_equipment.HasSocket)
             {
-                if (display == null ||
-                    display.Definition == null ||
-                    display.Definition.EquippedPrefab == null)
-                {
-                    Debug.LogError(
-                        "Cada exhibición necesita un perfil y prefab equipado.",
-                        this);
-                    return false;
-                }
+                Debug.LogError("PlayerEquipment necesita un WeaponSocket.", _equipment);
+                return false;
             }
-
-            return true;
+            return _input.ValidateSetup() && _presentation.ValidateSetup() && _camera.ValidateSetup();
         }
 
         private void OnEnable()
         {
-            if (_configured)
-                _health.Died += HandleDeath;
+            if (!_configured) return;
+            _input.SelectionRequested += Select;
+            _input.ConfirmRequested += ConfirmSelection;
+            _camera.VisibilityChanged += _equipment.SetVisible;
+            _camera.Failed += Fail;
+            _player.Died += HandleDeath;
         }
 
         private IEnumerator Start()
         {
             _started = true;
-
             _player.SetSequenceLocked(true);
             _player.SetGameplayEnabled(false);
-
-            _invulnerability.SetWindow(
-                this, Time.time, float.PositiveInfinity);
+            _invulnerability.SetWindow(this, Time.time, float.PositiveInfinity);
 
             _characterController.enabled = false;
-            _player.transform.SetPositionAndRotation(
-                _startPos.position, _startPos.rotation);
+            _player.transform.SetPositionAndRotation(_startPos.position, _startPos.rotation);
             _characterController.enabled = true;
 
-            _cameraController.ResetOrientation();
-            _cameraController.FollowTarget();
-
-            _selectionCamera.transform.SetPositionAndRotation(
-                _firstPersonPose.position, _firstPersonPose.rotation);
-
-            // Descartar posiciones anteriores al teletransporte inicial.
-            _selectionCamera.PreviousStateIsValid = false;
-            _gameplayCamera.PreviousStateIsValid = false;
-
-            SetPlayerVisible(false);
-
-            foreach (WeaponDisplay display in _displays)
-            {
-                display.gameObject.SetActive(true);
-                display.BeginAppear();
-            }
-
-            // Vista central sin selección mientras se materializan ambas armas.
-            Vector3 midpoint = (_displays[0].FocusPoint.position +
-                _displays[1].FocusPoint.position) * 0.5f;
-            _selectionCamera.transform.LookAt(midpoint, Vector3.up);
-
-            yield return WaitForCamera(_selectionCamera);
-
-            if (_state == FlowState.Failed)
-                yield break;
+            _camera.PrepareSelection();
+            _presentation.BeginAppear();
+            yield return _camera.EnterSelection(_presentation.Midpoint);
+            if (_state == FlowState.Failed) yield break;
 
             yield return FadeScreen(0f, _fadeInDuration);
+            yield return _presentation.Appear();
+            SetSelection(0);
+            yield return _camera.AimInitially(_presentation.FocusPoint(0));
 
-            yield return AnimateWeapons(true, _weaponAppearDuration);
-            foreach (WeaponDisplay display in _displays)
-                display.FinishAppear();
-
-            Select(0);
-            Quaternion initialRotation = _selectionCamera.transform.rotation;
-            Quaternion swordRotation = Quaternion.LookRotation(
-                _displays[0].FocusPoint.position - _selectionCamera.transform.position,
-                Vector3.up);
-            float aimElapsed = 0f;
-            while (aimElapsed < _initialAimDuration)
-            {
-                aimElapsed += Time.unscaledDeltaTime;
-                _selectionCamera.transform.rotation = Quaternion.Slerp(initialRotation,
-                    swordRotation, Mathf.SmoothStep(0f, 1f,
-                        Mathf.Clamp01(aimElapsed / _initialAimDuration)));
-                yield return null;
-            }
-
-            _selectionUI.SetActive(true);
-            _navigate.Enable();
-            _confirm.Enable();
-            _mouseNavigate.Enable();
-
-            _inputArmed = false;
+            _presentation.ShowSelection();
+            _input.BeginSelection();
             _state = FlowState.Selecting;
         }
 
         private void Update()
         {
-            if (_state != FlowState.Selecting)
-                return;
+            if (_state != FlowState.Selecting) return;
+            // Aim before reading navigation, exactly as in the original sequence.
+            if (_input.CanRead)
+                _camera.AimAtSelection(_presentation.FocusPoint(_selectedIndex));
+            _input.Tick();
+        }
 
-            if (!Application.isFocused || Time.timeScale <= 0f)
-            {
-                _inputArmed = false;
-                _mouseTravel = 0f;
-                return;
-            }
-
-            AimAtSelection(false);
-
-            float horizontal = _navigate.ReadValue<Vector2>().x;
-
-            // Exigir reposo al entrar o recuperar foco.
-            if (!_inputArmed)
-            {
-                if (Mathf.Abs(horizontal) < 0.25f &&
-                    !_confirm.IsPressed())
-                {
-                    _inputArmed = true;
-                    _navigationHeld = false;
-                    _mouseTravel = 0f;
-                }
-
-                return;
-            }
-
-            if (Mathf.Abs(horizontal) < 0.25f)
-                _navigationHeld = false;
-
-            if (!_navigationHeld && Mathf.Abs(horizontal) > 0.6f)
-            {
-                Select(horizontal < 0f ? 0 : 1);
-                _navigationHeld = true;
-                _mouseTravel = 0f;
-            }
-            else if (Mathf.Abs(horizontal) < 0.25f)
-            {
-                float delta = _mouseNavigate.ReadValue<Vector2>().x;
-                if (Mathf.Abs(delta) > 0.01f)
-                {
-                    if (Time.unscaledTime - _lastMouseMotion > 0.2f ||
-                        Mathf.Sign(delta) != Mathf.Sign(_mouseTravel))
-                        _mouseTravel = 0f;
-                    _lastMouseMotion = Time.unscaledTime;
-                    _mouseTravel += delta;
-                    if (Mathf.Abs(_mouseTravel) >= _mouseSelectionDistance)
-                    {
-                        Select(_mouseTravel < 0f ? 0 : 1);
-                        _mouseTravel = 0f;
-                    }
-                }
-            }
-
-            if (_confirm.WasPressedThisFrame())
-                ConfirmSelection();
+        private void LateUpdate()
+        {
+            if (_configured)
+                _presentation.TickNames(_state == FlowState.Selecting, _selectedIndex);
         }
 
         private void Select(int index)
         {
-            _selectedIndex = index;
-
-            for (int i = 0; i < _displays.Length; i++)
-                _displays[i].SetSelected(i == index);
+            if (_state == FlowState.Selecting)
+                SetSelection(index);
         }
 
-        private void AimAtSelection(bool immediate)
+        private void SetSelection(int index)
         {
-            Transform cameraTransform = _selectionCamera.transform;
-
-            Vector3 direction =
-                _displays[_selectedIndex].FocusPoint.position -
-                cameraTransform.position;
-
-            if (direction.sqrMagnitude < 0.0001f)
-                return;
-
-            Quaternion target =
-                Quaternion.LookRotation(direction, Vector3.up);
-
-            float blend = immediate
-                ? 1f
-                : 1f - Mathf.Exp(
-                    -_lookSharpness * Time.unscaledDeltaTime);
-
-            cameraTransform.rotation = Quaternion.Slerp(
-                cameraTransform.rotation, target, blend);
+            _selectedIndex = index;
+            _presentation.Select(index);
         }
 
         private void ConfirmSelection()
         {
-            if (!_equipment.TryEquip(
-                _displays[_selectedIndex].Definition))
-            {
+            if (_state != FlowState.Selecting ||
+                !_equipment.TryEquip(_presentation.Definition(_selectedIndex)))
                 return;
-            }
 
-            // Se equipa inmediatamente, pero permanece oculta
-            // hasta que la cámara salga del cuerpo.
             _equipment.SetVisible(false);
-
             _state = FlowState.Transitioning;
-            _navigate.Disable();
-            _confirm.Disable();
-            _mouseNavigate.Disable();
-            _selectionUI.SetActive(false);
-
-            for (int i = 0; i < _displays.Length; i++)
-                _displays[i].BeginDisappear(i == _selectedIndex);
-
+            _input.EndSelection();
+            _presentation.BeginDisappear(_selectedIndex);
             StartCoroutine(EnterGameplay());
         }
 
         private IEnumerator EnterGameplay()
         {
-            // Completar la desaparición desde la vista de selección antes del blend.
-            yield return AnimateWeapons(false, _weaponFadeDuration);
-            foreach (WeaponDisplay display in _displays)
-                display.gameObject.SetActive(false);
+            yield return _presentation.Disappear();
             if (_beforeThirdPersonDelay > 0f)
                 yield return new WaitForSecondsRealtime(_beforeThirdPersonDelay);
-
-            _gameplayCamera.Priority = 200;
-
-            // Permitir que el Brain evalúe el cambio de prioridad.
-            yield return null;
-
-            float elapsed = 0f;
-            bool playerRevealed = false;
-
-            while (true)
-            {
-                elapsed += Time.unscaledDeltaTime;
-
-                if (!playerRevealed &&
-                    Vector3.Distance(
-                        _outputCamera.transform.position,
-                        _headPoint.position) >= _revealDistance)
-                {
-                    SetPlayerVisible(true);
-                    playerRevealed = true;
-                }
-
-                bool cameraReady =
-                    ReferenceEquals(_brain.ActiveVirtualCamera, _gameplayCamera) &&
-                    !_brain.IsBlending;
-
-                if (cameraReady)
-                    break;
-
-                if (elapsed > _cameraTimeout)
-                {
-                    Fail("No terminó la transición a tercera persona.");
-                    yield break;
-                }
-
-                yield return null;
-            }
-
-            foreach (WeaponDisplay display in _displays)
-                display.gameObject.SetActive(false);
-
-            SetPlayerVisible(true);
+            yield return _camera.EnterGameplay();
+            if (_state == FlowState.Failed) yield break;
 
             _invulnerability.RemoveWindow(this);
             _state = FlowState.Playing;
-
             _gameplayHUD.SetActive(true);
             _player.SetSequenceLocked(false);
             _player.SetGameplayEnabled(true);
             _encounterActors.SetActive(true);
-        }
-
-        private IEnumerator WaitForCamera(CinemachineCamera target)
-        {
-            float elapsed = 0f;
-            yield return null;
-
-            while (!ReferenceEquals(_brain.ActiveVirtualCamera, target) ||
-                   _brain.IsBlending)
-            {
-                elapsed += Time.unscaledDeltaTime;
-
-                if (elapsed > _cameraTimeout)
-                {
-                    Fail("No se pudo activar la cámara de selección.");
-                    yield break;
-                }
-
-                yield return null;
-            }
-        }
-
-        private IEnumerator AnimateWeapons(bool appearing, float duration)
-        {
-            float elapsed = 0f;
-            while (elapsed < duration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                float progress = Mathf.SmoothStep(0f, 1f,
-                    Mathf.Clamp01(elapsed / Mathf.Max(0.01f, duration)));
-                foreach (WeaponDisplay display in _displays)
-                    display.SetVisibility(appearing ? progress : 1f - progress);
-                yield return null;
-            }
-            foreach (WeaponDisplay display in _displays)
-                display.SetVisibility(appearing ? 1f : 0f);
         }
 
         private void HandleDeath()
@@ -458,7 +182,6 @@ namespace FinalVFX.Core
             _state = FlowState.Restarting;
 
             _player.SetSequenceLocked(true);
-            _player.SetGameplayEnabled(false);
 
             _gameplayHUD.SetActive(false);
             _encounterActors.SetActive(false);
@@ -500,21 +223,6 @@ namespace FinalVFX.Core
             _blackScreen.blocksRaycasts = target > 0f;
         }
 
-        private void SetPlayerVisible(bool visible)
-        {
-            if (_playerRenderers != null)
-            {
-                foreach (Renderer target in _playerRenderers)
-                {
-                    if (target != null)
-                        target.forceRenderingOff = !visible;
-                }
-            }
-
-            if (_equipment != null)
-                _equipment.SetVisible(visible);
-        }
-
         private void Fail(string message)
         {
             _state = FlowState.Failed;
@@ -527,26 +235,19 @@ namespace FinalVFX.Core
 
         private void OnDisable()
         {
-            if (_configured)
-                _health.Died -= HandleDeath;
-
-            _navigate?.Disable();
-            _confirm?.Disable();
-            _mouseNavigate?.Disable();
+            if (!_configured) return;
+            _player.Died -= HandleDeath;
+            _input.SelectionRequested -= Select;
+            _input.ConfirmRequested -= ConfirmSelection;
+            _input.EndSelection();
             StopAllCoroutines();
-
             if (_started)
             {
                 _invulnerability.RemoveWindow(this);
-                SetPlayerVisible(true);
+                _camera.SetPlayerVisible(true);
             }
-        }
-
-        private void OnDestroy()
-        {
-            _navigate?.Dispose();
-            _confirm?.Dispose();
-            _mouseNavigate?.Dispose();
+            _camera.VisibilityChanged -= _equipment.SetVisible;
+            _camera.Failed -= Fail;
         }
     }
 }

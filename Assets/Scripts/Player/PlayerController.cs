@@ -1,4 +1,5 @@
-﻿using FinalVFX.Combat;
+using System;
+using FinalVFX.Combat;
 using UnityEngine;
 
 namespace FinalVFX.Player
@@ -24,6 +25,8 @@ namespace FinalVFX.Player
         private PlayerDodge _dodge;
         private bool _hasFocus;
         private bool _sequenceLocked;
+
+        public event Action Died;
 
         public bool IsSprinting => _locomotion.IsSprinting;
         public bool IsDodging => _dodge.IsDodging;
@@ -124,6 +127,7 @@ namespace FinalVFX.Player
             SetGameplayEnabled(false);
             _motor.ResetMotion();
             _locomotion.ResetState();
+            Died?.Invoke();
         }
 
         private void OnEnable()

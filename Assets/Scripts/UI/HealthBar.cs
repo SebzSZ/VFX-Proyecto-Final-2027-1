@@ -1,6 +1,7 @@
 ﻿using FinalVFX.Combat;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace FinalVFX.UI
 {
@@ -8,7 +9,7 @@ namespace FinalVFX.UI
     public class HealthBar : MonoBehaviour
     {
         [SerializeField] private HealthComponent _health;
-        [SerializeField] private Text _valueLabel;
+        [SerializeField] private TMP_Text _valueLabel;
         private Slider _slider;
 
         private void Awake()

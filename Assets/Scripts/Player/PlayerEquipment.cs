@@ -18,6 +18,8 @@ namespace FinalVFX.Player
         public WeaponDefinition EquippedWeapon { get; private set; }
         public bool HasSocket => _weaponSocket != null;
 
+        public event System.Action<WeaponDefinition> WeaponChanged;
+
         private void Awake()
         {
             _health = GetComponent<HealthComponent>();
@@ -57,6 +59,8 @@ namespace FinalVFX.Player
 
             _health.SetMaximumAndRestore(definition.MaximumHealth);
             _stamina.SetMaximumAndRestore(definition.MaximumStamina);
+
+            WeaponChanged?.Invoke(EquippedWeapon);
 
             return true;
         }

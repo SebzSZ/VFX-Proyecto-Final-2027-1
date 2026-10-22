@@ -19,3 +19,4 @@ MonoBehaviour:
   _localPosition: {x: 0.1659945, y: 0.039739896, z: -0.010371929}
   _localEulerAngles: {x: 14.600855, y: 7.14395, z: 193.89555}
   _localScale: {x: 0.45, y: 0.45, z: 0.45}
+  _poseType: 1

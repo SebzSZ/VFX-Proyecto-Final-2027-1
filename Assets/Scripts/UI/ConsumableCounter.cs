@@ -1,16 +1,16 @@
 using FinalVFX.Combat;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 namespace FinalVFX.UI
 {
-    [RequireComponent(typeof(Text))]
+    [RequireComponent(typeof(TextMeshProUGUI))]
     public class ConsumableCounter : MonoBehaviour
     {
         [SerializeField] private HealingConsumable _consumable;
-        private Text _text;
+        private TMP_Text _text;
 
-        private void Awake() => _text = GetComponent<Text>();
+        private void Awake() => _text = GetComponent<TMP_Text>();
 
         private void OnEnable()
         {
