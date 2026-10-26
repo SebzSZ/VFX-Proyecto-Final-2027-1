@@ -30,10 +30,10 @@ namespace FinalVFX.Player
             Animator.StringToHash("WeaponType");
 
         private static readonly int SwordState =
-            Animator.StringToHash("Weapon Pose.WalkSword");
+            Animator.StringToHash("Weapon Pose.SwordPose");
 
         private static readonly int ScytheState =
-            Animator.StringToHash("Weapon Pose.WalkScythe");
+            Animator.StringToHash("Weapon Pose.ScythePose");
 
         private void Awake()
         {
