@@ -17,6 +17,7 @@ namespace FinalVFX.Player
         [SerializeField, Min(0f)] private float _movementThreshold = 0.1f;
 
         private PlayerMotor _motor;
+        private PlayerDodge _dodge;
         private PlayerEquipment _equipment;
         private int _weaponLayer = -1;
 
@@ -25,6 +26,12 @@ namespace FinalVFX.Player
 
         private static readonly int Speed =
             Animator.StringToHash("Speed");
+
+        private static readonly int Grounded =
+            Animator.StringToHash("Grounded");
+
+        private static readonly int Dodging =
+            Animator.StringToHash("Dodging");
 
         private static readonly int WeaponType =
             Animator.StringToHash("WeaponType");
@@ -35,9 +42,11 @@ namespace FinalVFX.Player
         private static readonly int ScytheState =
             Animator.StringToHash("Weapon Pose.ScythePose");
 
+
         private void Awake()
         {
             _motor = GetComponent<PlayerMotor>();
+            _dodge = GetComponent<PlayerDodge>();
             _equipment = GetComponent<PlayerEquipment>();
 
             if (_animator == null)
@@ -109,6 +118,14 @@ namespace FinalVFX.Player
 
             _animator.SetFloat(
                 Speed, speed, _speedDamping, Time.deltaTime);
+
+            bool inGround = _motor.IsGrounded;
+            _animator.SetBool(
+                Grounded, inGround);
+
+            bool isDodging = _dodge.IsDodging;
+            _animator.SetBool(
+                Dodging, isDodging);
         }
 
         private void HandleWeaponChanged(WeaponDefinition weapon)

@@ -119,11 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!4 &16908950 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6954479155334451006, guid: c0434fb00e0c82e41bce4927da143027, type: 3}
-  m_PrefabInstance: {fileID: 40890774}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &40890774
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2161,6 +2156,11 @@ MonoBehaviour:
   _maximumPitch: 65
   _initialPitch: 10
   _invertVertical: 0
+--- !u!4 &385681871 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -7733653137167873997, guid: c0434fb00e0c82e41bce4927da143027, type: 3}
+  m_PrefabInstance: {fileID: 40890774}
+  m_PrefabAsset: {fileID: 0}
 --- !u!137 &391803747 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 7205140776170859923, guid: c0434fb00e0c82e41bce4927da143027, type: 3}
@@ -2774,7 +2774,7 @@ Transform:
   m_GameObject: {fileID: 672726750}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 85}
+  m_LocalPosition: {x: 0, y: -0.05, z: 85}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3618,9 +3618,9 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2, y: 2.6555278, z: 0}
   m_Center: {x: 0, y: -0.327764, z: 0}
---- !u!4 &1231099572 stripped
+--- !u!4 &1149978652 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 6033402424518099082, guid: c0434fb00e0c82e41bce4927da143027, type: 3}
+  m_CorrespondingSourceObject: {fileID: 7380760038544638063, guid: c0434fb00e0c82e41bce4927da143027, type: 3}
   m_PrefabInstance: {fileID: 40890774}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1238293078
@@ -3843,9 +3843,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: EZhex1991.EZSoftBone::EZhex1991.EZSoftBone.EZSoftBone
   m_RootBones:
-  - {fileID: 1231099572}
+  - {fileID: 385681871}
   m_EndBones:
-  - {fileID: 16908950}
+  - {fileID: 1149978652}
   m_Material: {fileID: 11400000, guid: 6ccfb3301225b0d4199fbf5e2f9b08d9, type: 2}
   m_StartDepth: 0
   m_SiblingConstraints: 0
