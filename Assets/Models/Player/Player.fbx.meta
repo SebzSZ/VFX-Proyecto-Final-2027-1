@@ -3,7 +3,32 @@ guid: c0434fb00e0c82e41bce4927da143027
 ModelImporter:
   serializedVersion: 24300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Bufanda
+    second: {fileID: 2100000, guid: d4e1b3d8509197e4ca8d91e5968b788e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material
+    second: {fileID: 2100000, guid: 952af5aab9a199b4fbb6fac00b164476, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Metal
+    second: {fileID: 2100000, guid: eb9fd828dba662d46b596a544df3e05c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Piel
+    second: {fileID: 2100000, guid: 426da8858de225e45bc6ef7c812e5bb2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Ropa
+    second: {fileID: 2100000, guid: affdae0097c488444b7842033d45bd0b, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

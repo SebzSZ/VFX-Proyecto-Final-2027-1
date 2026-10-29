@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using FinalVFX.Combat;
 using UnityEngine;
 
@@ -30,6 +30,7 @@ namespace FinalVFX.Player
 
         public bool IsSprinting => _locomotion.IsSprinting;
         public bool IsDodging => _dodge.IsDodging;
+        public bool IsSequenceLocked => _sequenceLocked;
         public bool CanAct => isActiveAndEnabled && !_sequenceLocked && _gameplayEnabled && _hasFocus && !_health.IsDead && !_dodge.IsDodging && Time.timeScale > 0f;
 
         private void Awake()
@@ -45,12 +46,21 @@ namespace FinalVFX.Player
 
         private void Update()
         {
-            if (_sequenceLocked)
-                return;
-
             float deltaTime = Time.deltaTime;
             if (deltaTime <= 0f || _health.IsDead)
                 return;
+
+            if (_sequenceLocked)
+            {
+                _locomotion.Tick(
+                    Vector3.zero,
+                    false,
+                    false,
+                    false,
+                    deltaTime);
+
+                return;
+            }
 
             bool acceptInput = _gameplayEnabled && _hasFocus;
             Vector2 movement = acceptInput ? Vector2.ClampMagnitude(_input.Movement, 1f) : Vector2.zero;

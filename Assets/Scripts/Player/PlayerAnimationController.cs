@@ -17,6 +17,7 @@ namespace FinalVFX.Player
         [SerializeField, Min(0f)] private float _movementThreshold = 0.1f;
 
         private PlayerMotor _motor;
+        private PlayerController _player;
         private PlayerDodge _dodge;
         private PlayerEquipment _equipment;
         private int _weaponLayer = -1;
@@ -46,6 +47,7 @@ namespace FinalVFX.Player
         private void Awake()
         {
             _motor = GetComponent<PlayerMotor>();
+            _player = GetComponent<PlayerController>();
             _dodge = GetComponent<PlayerDodge>();
             _equipment = GetComponent<PlayerEquipment>();
 
@@ -107,6 +109,14 @@ namespace FinalVFX.Player
         {
             if (!_ready)
                 return;
+
+            if (_player != null && _player.IsSequenceLocked)
+            {
+                _animator.SetFloat(Speed, 0f);
+                _animator.SetBool(Grounded, true);
+                _animator.SetBool(Dodging, false);
+                return;
+            }
 
             Vector3 velocity = _motor.Velocity;
             velocity.y = 0f;
