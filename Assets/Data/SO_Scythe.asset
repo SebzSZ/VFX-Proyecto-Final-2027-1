@@ -20,3 +20,42 @@ MonoBehaviour:
   _localEulerAngles: {x: 85, y: 180, z: 160}
   _localScale: {x: 0.75, y: 0.75, z: 0.75}
   _poseType: 2
+  _basicSteps:
+  - impact:
+      damage: 5
+      from: 0.3
+      until: 0.5
+    clip: {fileID: 0}
+    fallbackDuration: 0.6
+    open: 0.25
+    close: 0.7
+    link: 0.8
+  - impact:
+      damage: 9
+      from: 0.3
+      until: 0.5
+    clip: {fileID: 0}
+    fallbackDuration: 0.6
+    open: 0.25
+    close: 0.7
+    link: 0.8
+  - impact:
+      damage: 13
+      from: 0.3
+      until: 0.5
+    clip: {fileID: 0}
+    fallbackDuration: 0.6
+    open: 0.25
+    close: 0.7
+    link: 0.8
+  _basicRestartDelay: 0.15
+  _secondary:
+    clip: {fileID: 0}
+    lockSeconds: 0.6
+  _ultimate:
+    clip: {fileID: 0}
+    lockSeconds: 1.2
+  _secondaryImpact:
+    damage: 20
+    from: 0.3
+    until: 0.5

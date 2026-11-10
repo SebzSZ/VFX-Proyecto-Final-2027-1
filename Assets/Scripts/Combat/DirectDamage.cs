@@ -9,19 +9,35 @@ namespace FinalVFX.Combat
         [SerializeField, Min(0f)] private float _damage = 25f;
         [SerializeField, Min(0f)] private float _invulnerabilityDuration = 0.5f;
 
+        // El valor por defecto conserva el daño por contacto de los objetos de prueba.
+        [SerializeField] private bool _manualMelee;
+        public bool ManualMelee => _manualMelee;
+        public LayerMask TargetLayers => _targetLayers;
+
+        public bool TryMeleeHit(Collider other)
+        {
+            return _manualMelee && ApplyDamage(other);
+        }
+
         private void OnTriggerEnter(Collider other) => TryInflictDamage(other);
         private void OnTriggerStay(Collider other) => TryInflictDamage(other);
 
         private void TryInflictDamage(Collider other)
         {
+            if (!_manualMelee)
+                ApplyDamage(other);
+        }
+
+        private bool ApplyDamage(Collider other)
+        {
             if (!isActiveAndEnabled || (_targetLayers.value & (1 << other.gameObject.layer)) == 0)
-                return;
+                return false;
 
             HealthComponent health = other.GetComponentInParent<HealthComponent>();
             if (health == null)
-                return;
+                return false;
 
-            health.ReceiveDamage(_damage, _invulnerabilityDuration);
+            return health.ReceiveDamage(_damage, _invulnerabilityDuration) > 0f;
         }
     }
 }

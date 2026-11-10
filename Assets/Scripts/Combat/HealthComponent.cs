@@ -24,7 +24,7 @@ namespace FinalVFX.Combat
         public event Action<float> Healed;
         public event Action Died;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             _invulnerability = GetComponent<InvulnerabilityComponent>();
             Current = Maximum;
@@ -40,8 +40,13 @@ namespace FinalVFX.Combat
             if (amount <= 0f || IsDead || _invulnerability.IsInvulnerable)
                 return 0f;
 
-            float applied = Mathf.Min(amount, Current);
-            Current -= applied;
+            float next = Mathf.Clamp(Current - amount, DamageFloor, Current);
+            float applied = Current - next;
+            if (applied <= 0f)
+                return 0f;
+
+            Current = next;
+            OnDamageCommitted();
             bool died = IsDead;
 
             float protectionDuration = Mathf.Max(_damageInvulnerabilityDuration, minimumInvulnerabilityDuration);
@@ -56,6 +61,9 @@ namespace FinalVFX.Combat
 
             return applied;
         }
+
+        protected virtual float DamageFloor => 0f;
+        protected virtual void OnDamageCommitted() { }
 
         public float Heal(float amount)
         {

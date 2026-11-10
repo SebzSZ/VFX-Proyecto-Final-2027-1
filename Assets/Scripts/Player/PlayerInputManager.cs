@@ -15,6 +15,10 @@ namespace FinalVFX.Player
         public bool ConsumablePressed => _controls.Player.Consume.WasPressedThisFrame();
         public bool IsDodgePressed => _controls.Player.Dodge.WasPressedThisFrame();
 
+        public bool BasicPressed => _controls.Player.BasicAttack.WasPressedThisFrame();
+        public bool SecondaryPressed => _controls.Player.SecondAttack.WasPressedThisFrame();
+        public bool UltimatePressed => _controls.Player.Ultimate.WasPressedThisFrame();
+
         private void Awake()
         {
             _controls = new PlayerControls();

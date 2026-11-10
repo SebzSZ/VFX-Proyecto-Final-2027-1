@@ -11,6 +11,7 @@ namespace FinalVFX.Player
     [RequireComponent(typeof(PlayerMotor))]
     [RequireComponent(typeof(PlayerDodge))]
     [RequireComponent(typeof(HealingConsumable))]
+    [RequireComponent(typeof(PlayerCombat))]
     public class PlayerController : MonoBehaviour
     {
         [SerializeField] private PlayerCameraController _cameraController;
@@ -23,6 +24,7 @@ namespace FinalVFX.Player
         private HealthComponent _health;
         private HealingConsumable _healing;
         private PlayerDodge _dodge;
+        private PlayerCombat _combat;
         private bool _hasFocus;
         private bool _sequenceLocked;
 
@@ -31,7 +33,7 @@ namespace FinalVFX.Player
         public bool IsSprinting => _locomotion.IsSprinting;
         public bool IsDodging => _dodge.IsDodging;
         public bool IsSequenceLocked => _sequenceLocked;
-        public bool CanAct => isActiveAndEnabled && !_sequenceLocked && _gameplayEnabled && _hasFocus && !_health.IsDead && !_dodge.IsDodging && Time.timeScale > 0f;
+        public bool CanAct => isActiveAndEnabled && !_sequenceLocked && _gameplayEnabled && _hasFocus && !_health.IsDead && !_dodge.IsDodging && !_combat.Busy && Time.timeScale > 0f;
 
         private void Awake()
         {
@@ -42,6 +44,7 @@ namespace FinalVFX.Player
             _health = GetComponent<HealthComponent>();
             _healing = GetComponent<HealingConsumable>();
             _dodge = GetComponent<PlayerDodge>();
+            _combat = GetComponent<PlayerCombat>();
         }
 
         private void Update()
@@ -73,10 +76,14 @@ namespace FinalVFX.Player
             Vector3 right = Vector3.Cross(Vector3.up, forward);
             Vector3 direction = right * movement.x + forward * movement.y;
 
-            // Una petición de esquive tiene prioridad sobre curación y salto.
-            bool dodgeRequested = acceptInput && _input.IsDodgePressed;
-            if (dodgeRequested)
-                _dodge.TryStart(direction);
+            float now = Time.time;
+            bool wasBasic = _combat.State == PlayerCombat.ActionState.Basic;
+            if (!wasBasic)
+                _combat.Advance(now);
+
+            bool dodgeRequested = acceptInput && _input.IsDodgePressed && _combat.AllowsDodge;
+            if (dodgeRequested && _dodge.TryStart(direction))
+                _combat.InterruptBasic();
 
             if (_dodge.IsDodging)
             {
@@ -85,11 +92,20 @@ namespace FinalVFX.Player
             }
             else
             {
-                bool healed = !dodgeRequested && acceptInput && _motor.IsGrounded && _input.ConsumablePressed && _healing.TryUse();
+                if (wasBasic)
+                    _combat.Advance(now);
+
+                if (acceptInput && _motor.IsGrounded)
+                    _combat.ReadPresses(_input, now);
+
+                bool canMove = acceptInput && !_combat.Busy;
+                bool healed = canMove && !dodgeRequested && _motor.IsGrounded
+                    && _input.ConsumablePressed && _healing.TryUse();
                 if (healed)
                     _stamina.NotifyActionActive();
 
-                _locomotion.Tick(direction, sprintHeld, jumpPressed && !dodgeRequested && !healed, acceptInput, deltaTime);
+                _locomotion.Tick(direction, sprintHeld, jumpPressed && !dodgeRequested && !healed,
+                    canMove, deltaTime);
             }
 
             _cameraController.FollowTarget();
@@ -99,7 +115,10 @@ namespace FinalVFX.Player
         {
             _gameplayEnabled = enabled;
             if (!enabled)
+            {
                 _dodge.Cancel();
+                _combat.ResetCombat();
+            }
 
             ApplyCursorState();
         }
@@ -108,6 +127,7 @@ namespace FinalVFX.Player
         public void ResetForRespawn()
         {
             _dodge.Cancel();
+            _combat.ResetCombat();
             _motor.ResetMotion();
             _locomotion.ResetState();
             _stamina.RestoreFull();
@@ -125,6 +145,7 @@ namespace FinalVFX.Player
             if (locked)
             {
                 _dodge.Cancel();
+                _combat.ResetCombat();
                 _motor.ResetMotion();
                 _locomotion.ResetState();
             }
@@ -151,6 +172,7 @@ namespace FinalVFX.Player
         {
             _health.Died -= HandleDeath;
             _dodge.Cancel();
+            _combat.ResetCombat();
             ApplyCursorState();
         }
 
@@ -158,7 +180,10 @@ namespace FinalVFX.Player
         {
             _hasFocus = hasFocus;
             if (!hasFocus)
+            {
                 _dodge.Cancel();
+                _combat.ResetCombat();
+            }
 
             ApplyCursorState();
         }
@@ -171,4 +196,3 @@ namespace FinalVFX.Player
         }
     }
 }
-

@@ -16,6 +16,14 @@ namespace FinalVFX.Player
         [SerializeField, Min(0f)] private float _speedDamping = 0.1f;
         [SerializeField, Min(0f)] private float _movementThreshold = 0.1f;
 
+        [Header("Combate")]
+        [SerializeField] private AnimationClip _combatPlaceholder;
+
+        private AnimatorOverrideController _combatOverrides;
+        private RuntimeAnimatorController _originalController;
+        private int _combatLayer = -1;
+        private static readonly int CombatState = Animator.StringToHash("Combat.Action");
+
         private PlayerMotor _motor;
         private PlayerController _player;
         private PlayerDodge _dodge;
@@ -85,7 +93,56 @@ namespace FinalVFX.Player
             }
 
             _animator.applyRootMotion = false;
+            ConfigureCombatLayer();
             _ready = true;
+        }
+
+        private void ConfigureCombatLayer()
+        {
+            _combatLayer = _animator.GetLayerIndex("Combat");
+            _originalController = _animator.runtimeAnimatorController;
+            if (_combatLayer < 0 || !_animator.HasState(_combatLayer, CombatState) ||
+                !_combatPlaceholder ||
+                System.Array.IndexOf(_originalController.animationClips, _combatPlaceholder) < 0)
+            {
+                Debug.LogWarning("Configura Combat.Action y su clip CombatPlaceholder.", this);
+                return;
+            }
+
+            _combatOverrides = new AnimatorOverrideController(_originalController);
+            _animator.runtimeAnimatorController = _combatOverrides;
+            _animator.SetLayerWeight(_combatLayer, 0f);
+        }
+
+        public bool PlayCombatClip(AnimationClip clip)
+        {
+            if (!clip || !_combatOverrides || !isActiveAndEnabled)
+            {
+                StopCombatClip();
+                return false;
+            }
+
+            _combatOverrides[_combatPlaceholder] = clip;
+            _animator.SetLayerWeight(_combatLayer, 1f);
+            _animator.Play(CombatState, _combatLayer, 0f);
+            return true;
+        }
+
+        public void StopCombatClip()
+        {
+            if (_combatOverrides)
+                _animator.SetLayerWeight(_combatLayer, 0f);
+        }
+
+        private void OnDestroy()
+        {
+            if (!_combatOverrides)
+                return;
+
+            if (_animator && _animator.runtimeAnimatorController == _combatOverrides)
+                _animator.runtimeAnimatorController = _originalController;
+
+            Destroy(_combatOverrides);
         }
 
         private void OnEnable()

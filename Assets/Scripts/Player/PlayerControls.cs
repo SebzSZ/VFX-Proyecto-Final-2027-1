@@ -153,6 +153,36 @@ namespace FinalVFX.Player
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""BasicAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""2130b73e-355f-4fba-b064-9c36aa8a50ec"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""SecondAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""e0728324-2a29-40a0-9c01-c7d55d674562"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""Ultimate"",
+                    ""type"": ""Button"",
+                    ""id"": ""bf7d2cae-20f8-47c0-b28b-ca6c232de038"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -331,6 +361,39 @@ namespace FinalVFX.Player
                     ""action"": ""Dodge"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""31c5944b-6fad-45b7-94ac-443cf71fa6db"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SecondAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7a7f614d-a944-4e85-bea0-7c4dedb492b6"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""BasicAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""968d8da6-daf7-4307-820a-ad58f037eea3"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Ultimate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -368,6 +431,9 @@ namespace FinalVFX.Player
             m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
             m_Player_Consume = m_Player.FindAction("Consume", throwIfNotFound: true);
             m_Player_Dodge = m_Player.FindAction("Dodge", throwIfNotFound: true);
+            m_Player_BasicAttack = m_Player.FindAction("BasicAttack", throwIfNotFound: true);
+            m_Player_SecondAttack = m_Player.FindAction("SecondAttack", throwIfNotFound: true);
+            m_Player_Ultimate = m_Player.FindAction("Ultimate", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -454,6 +520,9 @@ namespace FinalVFX.Player
         private readonly InputAction m_Player_Look;
         private readonly InputAction m_Player_Consume;
         private readonly InputAction m_Player_Dodge;
+        private readonly InputAction m_Player_BasicAttack;
+        private readonly InputAction m_Player_SecondAttack;
+        private readonly InputAction m_Player_Ultimate;
         /// <summary>
         /// Provides access to input actions defined in input action map "Player".
         /// </summary>
@@ -489,6 +558,18 @@ namespace FinalVFX.Player
             /// Provides access to the underlying input action "Player/Dodge".
             /// </summary>
             public InputAction @Dodge => m_Wrapper.m_Player_Dodge;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/BasicAttack".
+            /// </summary>
+            public InputAction @BasicAttack => m_Wrapper.m_Player_BasicAttack;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/SecondAttack".
+            /// </summary>
+            public InputAction @SecondAttack => m_Wrapper.m_Player_SecondAttack;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/Ultimate".
+            /// </summary>
+            public InputAction @Ultimate => m_Wrapper.m_Player_Ultimate;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -533,6 +614,15 @@ namespace FinalVFX.Player
                 @Dodge.started += instance.OnDodge;
                 @Dodge.performed += instance.OnDodge;
                 @Dodge.canceled += instance.OnDodge;
+                @BasicAttack.started += instance.OnBasicAttack;
+                @BasicAttack.performed += instance.OnBasicAttack;
+                @BasicAttack.canceled += instance.OnBasicAttack;
+                @SecondAttack.started += instance.OnSecondAttack;
+                @SecondAttack.performed += instance.OnSecondAttack;
+                @SecondAttack.canceled += instance.OnSecondAttack;
+                @Ultimate.started += instance.OnUltimate;
+                @Ultimate.performed += instance.OnUltimate;
+                @Ultimate.canceled += instance.OnUltimate;
             }
 
             /// <summary>
@@ -562,6 +652,15 @@ namespace FinalVFX.Player
                 @Dodge.started -= instance.OnDodge;
                 @Dodge.performed -= instance.OnDodge;
                 @Dodge.canceled -= instance.OnDodge;
+                @BasicAttack.started -= instance.OnBasicAttack;
+                @BasicAttack.performed -= instance.OnBasicAttack;
+                @BasicAttack.canceled -= instance.OnBasicAttack;
+                @SecondAttack.started -= instance.OnSecondAttack;
+                @SecondAttack.performed -= instance.OnSecondAttack;
+                @SecondAttack.canceled -= instance.OnSecondAttack;
+                @Ultimate.started -= instance.OnUltimate;
+                @Ultimate.performed -= instance.OnUltimate;
+                @Ultimate.canceled -= instance.OnUltimate;
             }
 
             /// <summary>
@@ -670,6 +769,27 @@ namespace FinalVFX.Player
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnDodge(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "BasicAttack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnBasicAttack(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "SecondAttack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnSecondAttack(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Ultimate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnUltimate(InputAction.CallbackContext context);
         }
     }
 }
