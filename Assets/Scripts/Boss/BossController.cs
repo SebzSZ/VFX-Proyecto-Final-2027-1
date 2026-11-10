@@ -179,7 +179,6 @@ namespace FinalVFX.Boss
             difference.y = 0f;
             float distance = difference.magnitude;
 
-            // Sin detección: vagar y salir antes de elegir ataques.
             if (distance > _settings.VisionDistance)
             {
                 ChangeState(BehaviourState.Wandering);
@@ -187,7 +186,6 @@ namespace FinalVFX.Boss
                 return;
             }
 
-            // Con detección: perseguir y seguir tomando decisiones.
             ChangeState(BehaviourState.Chasing);
 
             _motor.TickChase(
@@ -246,7 +244,7 @@ namespace FinalVFX.Boss
                 _motor.BeginChase();
 
                 Debug.Log(
-                    "[Guardián] Jugador detectado: persiguiendo.",
+                    "[Boss] Jugador detectado: persiguiendo.",
                     this);
             }
         }

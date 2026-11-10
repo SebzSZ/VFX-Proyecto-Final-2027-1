@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using FinalVFX.Player;
 
 namespace FinalVFX.Combat
 {
@@ -11,6 +12,8 @@ namespace FinalVFX.Combat
 
         // El valor por defecto conserva el daño por contacto de los objetos de prueba.
         [SerializeField] private bool _manualMelee;
+        [Tooltip("Para el melee, asigna la raíz del Guardián.")]
+        [SerializeField] private Transform _pushOrigin;
         public bool ManualMelee => _manualMelee;
         public LayerMask TargetLayers => _targetLayers;
 
@@ -37,7 +40,15 @@ namespace FinalVFX.Combat
             if (health == null)
                 return false;
 
-            return health.ReceiveDamage(_damage, _invulnerabilityDuration) > 0f;
+            if (health.ReceiveDamage(_damage, _invulnerabilityDuration) <= 0f)
+                return false;
+
+            if (!health.IsDead && health.TryGetComponent(out PlayerController player))
+            {
+                Vector3 origin = _pushOrigin ? _pushOrigin.position : transform.position;
+                player.ReactToDirectDamage(origin);
+            }
+            return true;
         }
     }
 }

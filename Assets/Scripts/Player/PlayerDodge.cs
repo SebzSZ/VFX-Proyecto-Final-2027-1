@@ -48,6 +48,12 @@ namespace FinalVFX.Player
 
             _direction = Vector3.ProjectOnPlane(direction, Vector3.up);
             _direction = _direction.sqrMagnitude > 0.0001f ? _direction.normalized : transform.forward;
+
+            _direction = Vector3.ProjectOnPlane(direction, Vector3.up);
+            _direction = _direction.sqrMagnitude > 0.0001f
+                ? _direction.normalized
+                : transform.forward;
+
             transform.rotation = Quaternion.LookRotation(_direction, Vector3.up);
 
             IsDodging = true;

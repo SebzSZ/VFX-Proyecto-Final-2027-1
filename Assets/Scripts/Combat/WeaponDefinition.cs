@@ -40,6 +40,12 @@ namespace FinalVFX.Combat
             [Range(0f, 1f)] public float until = 0.5f;
         }
 
+        [Header("Recargas (segundos)")]
+        [SerializeField, Min(0f)] private float _secondaryCooldown = 5f;
+        [SerializeField, Min(0f)] private float _ultimateCooldown = 15f;
+        public float SecondaryCooldown => _secondaryCooldown;
+        public float UltimateCooldown => _ultimateCooldown;
+
         public int StepCount => _basicSteps.Length;
         public BasicStep Step(int index) => _basicSteps[index];
         public float BasicRestartDelay => _basicRestartDelay;

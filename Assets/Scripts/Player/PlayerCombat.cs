@@ -13,6 +13,48 @@ namespace FinalVFX.Player
         public bool Busy => State != ActionState.Ready;
         public bool AllowsDodge => !Busy || State == ActionState.Basic;
 
+        public enum Ability { Secondary, Ultimate }
+        public event System.Action<WeaponDefinition> UltimateExecuted;
+
+        private struct Cooldown
+        {
+            public float duration;
+            public float readyAt;
+
+            public void Start(float now, float seconds)
+            {
+                duration = Mathf.Max(0f, seconds);
+                readyAt = now + duration;
+            }
+        }
+
+        private Cooldown _secondary;
+        private Cooldown _ultimate;
+
+        public void GetCooldown(Ability ability, out float remaining, out float fraction)
+        {
+            Cooldown timer = ability == Ability.Ultimate ? _ultimate : _secondary;
+            remaining = Mathf.Max(0f, timer.readyAt - Time.time);
+            fraction = timer.duration > 0f ? Mathf.Clamp01(remaining / timer.duration) : 0f;
+        }
+
+        public void ResetEncounter()
+        {
+            ResetCombat();
+            _secondary = default;
+            _ultimate = default;
+        }
+
+        public void InterruptByDamage()
+        {
+            if (State == ActionState.Basic || State == ActionState.Secondary)
+                EndAction();
+        }
+
+        public bool SingleHasFinished(float now) =>
+            (State == ActionState.Secondary || State == ActionState.Ultimate) &&
+            now >= _startedAt + _duration;
+
         private PlayerEquipment _equipment;
         private PlayerAnimationController _presentation;
         private PlayerHitVolumes _volumes;
@@ -87,10 +129,47 @@ namespace FinalVFX.Player
             if (State == ActionState.Basic)
                 _basicAvailableAt = _startedAt + _duration + weapon.BasicRestartDelay;
 
+            bool executeUltimate = State == ActionState.Ultimate;
             EndAction();
+            if (executeUltimate)
+            {
+                Debug.Log($"{weapon.DisplayName} · ultimate ejecutada", this);
+                UltimateExecuted?.Invoke(weapon);
+            }
+        }
+
+        // Validar la habilidad antes de cerrar la acción que reemplaza.
+        public bool TryAbility(PlayerInputManager input, float now)
+        {
+            var weapon = _equipment.EquippedWeapon;
+            if (!isActiveAndEnabled || !weapon || State == ActionState.Ultimate)
+                return false;
+
+            if (input.UltimatePressed && now >= _ultimate.readyAt)
+            {
+                EndAction();
+                _ultimate.Start(now, weapon.UltimateCooldown);
+                StartSingle(weapon, weapon.Ultimate, ActionState.Ultimate, now);
+                return true;
+            }
+
+            if (State != ActionState.Secondary && input.SecondaryPressed && now >= _secondary.readyAt)
+            {
+                EndAction();
+                _secondary.Start(now, weapon.SecondaryCooldown);
+                StartSingle(weapon, weapon.Secondary, ActionState.Secondary, now);
+                return true;
+            }
+            return false;
         }
 
         public void ReadPresses(PlayerInputManager input, float now)
+        {
+            if (!TryAbility(input, now))
+                ReadBasicPress(input, now);
+        }
+
+        public void ReadBasicPress(PlayerInputManager input, float now)
         {
             if (!isActiveAndEnabled)
                 return;
@@ -117,11 +196,7 @@ namespace FinalVFX.Player
             if (Busy)
                 return;
 
-            if (input.UltimatePressed)
-                StartSingle(weapon, weapon.Ultimate, ActionState.Ultimate, now);
-            else if (input.SecondaryPressed)
-                StartSingle(weapon, weapon.Secondary, ActionState.Secondary, now);
-            else if (input.BasicPressed && now >= _basicAvailableAt && weapon.StepCount > 0)
+            if (input.BasicPressed && now >= _basicAvailableAt && weapon.StepCount > 0)
                 StartStep(weapon, 0, now);
         }
 

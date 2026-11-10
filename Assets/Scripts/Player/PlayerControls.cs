@@ -183,6 +183,16 @@ namespace FinalVFX.Player
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""LockView"",
+                    ""type"": ""Button"",
+                    ""id"": ""1b32e13c-84a1-434b-8221-51ef45139271"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -394,6 +404,17 @@ namespace FinalVFX.Player
                     ""action"": ""Ultimate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fccba106-ecd4-4856-a6e8-e7c80ccb345b"",
+                    ""path"": ""<Mouse>/middleButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LockView"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -434,6 +455,7 @@ namespace FinalVFX.Player
             m_Player_BasicAttack = m_Player.FindAction("BasicAttack", throwIfNotFound: true);
             m_Player_SecondAttack = m_Player.FindAction("SecondAttack", throwIfNotFound: true);
             m_Player_Ultimate = m_Player.FindAction("Ultimate", throwIfNotFound: true);
+            m_Player_LockView = m_Player.FindAction("LockView", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -523,6 +545,7 @@ namespace FinalVFX.Player
         private readonly InputAction m_Player_BasicAttack;
         private readonly InputAction m_Player_SecondAttack;
         private readonly InputAction m_Player_Ultimate;
+        private readonly InputAction m_Player_LockView;
         /// <summary>
         /// Provides access to input actions defined in input action map "Player".
         /// </summary>
@@ -570,6 +593,10 @@ namespace FinalVFX.Player
             /// Provides access to the underlying input action "Player/Ultimate".
             /// </summary>
             public InputAction @Ultimate => m_Wrapper.m_Player_Ultimate;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/LockView".
+            /// </summary>
+            public InputAction @LockView => m_Wrapper.m_Player_LockView;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -623,6 +650,9 @@ namespace FinalVFX.Player
                 @Ultimate.started += instance.OnUltimate;
                 @Ultimate.performed += instance.OnUltimate;
                 @Ultimate.canceled += instance.OnUltimate;
+                @LockView.started += instance.OnLockView;
+                @LockView.performed += instance.OnLockView;
+                @LockView.canceled += instance.OnLockView;
             }
 
             /// <summary>
@@ -661,6 +691,9 @@ namespace FinalVFX.Player
                 @Ultimate.started -= instance.OnUltimate;
                 @Ultimate.performed -= instance.OnUltimate;
                 @Ultimate.canceled -= instance.OnUltimate;
+                @LockView.started -= instance.OnLockView;
+                @LockView.performed -= instance.OnLockView;
+                @LockView.canceled -= instance.OnLockView;
             }
 
             /// <summary>
@@ -790,6 +823,13 @@ namespace FinalVFX.Player
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnUltimate(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "LockView" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnLockView(InputAction.CallbackContext context);
         }
     }
 }

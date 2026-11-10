@@ -19,6 +19,8 @@ namespace FinalVFX.Player
         public bool SecondaryPressed => _controls.Player.SecondAttack.WasPressedThisFrame();
         public bool UltimatePressed => _controls.Player.Ultimate.WasPressedThisFrame();
 
+        public bool LockViewPressed => _controls.Player.LockView.WasPressedThisFrame();
+
         private void Awake()
         {
             _controls = new PlayerControls();

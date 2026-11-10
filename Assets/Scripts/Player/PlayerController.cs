@@ -17,6 +17,12 @@ namespace FinalVFX.Player
         [SerializeField] private PlayerCameraController _cameraController;
         [SerializeField] private bool _gameplayEnabled = true;
 
+        [Header("Reacción a Direct Damage")]
+        [SerializeField, Min(0f)] private float _pushDistance = 0.6f;
+        [SerializeField, Min(0.01f)] private float _pushSeconds = 0.12f;
+        private Vector3 _pushVelocity;
+        private float _pushRemaining;
+
         private PlayerInputManager _input;
         private PlayerLocomotion _locomotion;
         private PlayerMotor _motor;
@@ -33,7 +39,7 @@ namespace FinalVFX.Player
         public bool IsSprinting => _locomotion.IsSprinting;
         public bool IsDodging => _dodge.IsDodging;
         public bool IsSequenceLocked => _sequenceLocked;
-        public bool CanAct => isActiveAndEnabled && !_sequenceLocked && _gameplayEnabled && _hasFocus && !_health.IsDead && !_dodge.IsDodging && !_combat.Busy && Time.timeScale > 0f;
+        public bool CanAct => isActiveAndEnabled && !_sequenceLocked && _gameplayEnabled && _hasFocus && !_health.IsDead && !_dodge.IsDodging && !_combat.Busy && _pushRemaining <= 0f && Time.timeScale > 0f;
 
         private void Awake()
         {
@@ -71,14 +77,38 @@ namespace FinalVFX.Player
             bool sprintHeld = _input.SprintHeld;
             bool jumpPressed = acceptInput && _input.JumpPressed;
 
+            if (acceptInput && _input.LockViewPressed)
+                _cameraController.ToggleBossView();
+
             _cameraController.TickLook(look, _input.IsLookingFromMouse, deltaTime);
             Vector3 forward = _cameraController.PlanarForward;
+            Transform lockedTarget = _cameraController.LockedTarget;
+
+            if (lockedTarget != null)
+            {
+                Vector3 toBoss = lockedTarget.position - transform.position;
+                toBoss.y = 0f;
+
+                if (toBoss.sqrMagnitude > 0.0001f)
+                    forward = toBoss.normalized;
+            }
+
             Vector3 right = Vector3.Cross(Vector3.up, forward);
             Vector3 direction = right * movement.x + forward * movement.y;
 
             float now = Time.time;
-            bool wasBasic = _combat.State == PlayerCombat.ActionState.Basic;
-            if (!wasBasic)
+            if (_pushRemaining > 0f)
+            {
+                _combat.Advance(now);
+                _locomotion.Suspend(sprintHeld);
+                float slice = Mathf.Min(deltaTime, _pushRemaining);
+                _motor.SimulatePush(_pushVelocity * slice, deltaTime);
+                _pushRemaining -= slice;
+                _cameraController.FollowTarget();
+                return;
+            }
+
+            if (_combat.SingleHasFinished(now))
                 _combat.Advance(now);
 
             bool dodgeRequested = acceptInput && _input.IsDodgePressed && _combat.AllowsDodge;
@@ -92,11 +122,14 @@ namespace FinalVFX.Player
             }
             else
             {
-                if (wasBasic)
+                bool canAttack = acceptInput && _motor.IsGrounded;
+                bool abilityStarted = canAttack && _combat.TryAbility(_input, now);
+                if (!abilityStarted)
+                {
                     _combat.Advance(now);
-
-                if (acceptInput && _motor.IsGrounded)
-                    _combat.ReadPresses(_input, now);
+                    if (canAttack)
+                        _combat.ReadBasicPress(_input, now);
+                }
 
                 bool canMove = acceptInput && !_combat.Busy;
                 bool healed = canMove && !dodgeRequested && _motor.IsGrounded
@@ -111,6 +144,22 @@ namespace FinalVFX.Player
             _cameraController.FollowTarget();
         }
 
+        public void ReactToDirectDamage(Vector3 origin)
+        {
+            if (!isActiveAndEnabled || _health.IsDead || _sequenceLocked || !_gameplayEnabled)
+                return;
+
+            Vector3 away = Vector3.ProjectOnPlane(transform.position - origin, Vector3.up);
+            if (away.sqrMagnitude < 0.0001f)
+                away = -transform.forward;
+
+            _dodge.Cancel();
+            _combat.InterruptByDamage();
+            _locomotion.Suspend(_input.SprintHeld);
+            _pushRemaining = Mathf.Max(0.01f, _pushSeconds);
+            _pushVelocity = away.normalized * (_pushDistance / _pushRemaining);
+        }
+
         public void SetGameplayEnabled(bool enabled)
         {
             _gameplayEnabled = enabled;
@@ -118,6 +167,7 @@ namespace FinalVFX.Player
             {
                 _dodge.Cancel();
                 _combat.ResetCombat();
+                _pushRemaining = 0f;
             }
 
             ApplyCursorState();
@@ -127,7 +177,8 @@ namespace FinalVFX.Player
         public void ResetForRespawn()
         {
             _dodge.Cancel();
-            _combat.ResetCombat();
+            _combat.ResetEncounter();
+            _pushRemaining = 0f;
             _motor.ResetMotion();
             _locomotion.ResetState();
             _stamina.RestoreFull();
@@ -146,6 +197,7 @@ namespace FinalVFX.Player
             {
                 _dodge.Cancel();
                 _combat.ResetCombat();
+                _pushRemaining = 0f;
                 _motor.ResetMotion();
                 _locomotion.ResetState();
             }
@@ -173,6 +225,7 @@ namespace FinalVFX.Player
             _health.Died -= HandleDeath;
             _dodge.Cancel();
             _combat.ResetCombat();
+            _pushRemaining = 0f;
             ApplyCursorState();
         }
 
@@ -183,6 +236,7 @@ namespace FinalVFX.Player
             {
                 _dodge.Cancel();
                 _combat.ResetCombat();
+                _pushRemaining = 0f;
             }
 
             ApplyCursorState();
