@@ -44,7 +44,32 @@ namespace FinalVFX.Combat
         [SerializeField, Min(0f)] private float _secondaryCooldown = 5f;
         [SerializeField, Min(0f)] private float _ultimateCooldown = 15f;
         public float SecondaryCooldown => _secondaryCooldown;
-        public float UltimateCooldown => _ultimateCooldown;
+        public float UltimateCooldown => Mathf.Max(_ultimateCooldown, UltimateEffect.duration + 0.1f);
+
+        [Header("Efecto de ultimate")]
+        [SerializeField] private UltimateSettings _ultimateEffect = new UltimateSettings();
+        public UltimateSettings UltimateEffect => _ultimateEffect;
+
+        [System.Serializable]
+        public sealed class UltimateSettings
+        {
+            [Min(0.1f)] public float duration = 8f;
+            [Min(1f)] public float swordBasicMultiplier = 1.5f;
+            [Min(0f)] public float swordShieldPerBasic = 5f;
+            [Min(0f)] public float scytheHealingPerBasic = 4f;
+            [Min(0f)] public float auraDamage = 3f;
+            [Min(0.05f)] public float auraInterval = 0.5f;
+            [Min(0.01f)] public float auraRadius = 2f;
+            [Min(0.01f)] public float auraHeight = 2f;
+            public float auraCenterHeight = 1f;
+        }
+
+        private void OnValidate()
+        {
+            _ultimateEffect.duration = Mathf.Max(0.1f, _ultimateEffect.duration);
+            _ultimateEffect.auraInterval = Mathf.Max(0.05f, _ultimateEffect.auraInterval);
+            _ultimateCooldown = Mathf.Max(_ultimateCooldown, _ultimateEffect.duration + 0.1f);
+        }
 
         public int StepCount => _basicSteps.Length;
         public BasicStep Step(int index) => _basicSteps[index];

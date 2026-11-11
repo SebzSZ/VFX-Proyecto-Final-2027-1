@@ -17,7 +17,7 @@ MonoBehaviour:
     To: CM_BossLock
     Blend:
       Style: 1
-      Time: 0.25
+      Time: 0.5
       CustomCurve:
         serializedVersion: 2
         m_Curve: []
@@ -28,7 +28,7 @@ MonoBehaviour:
     To: CM_PlayerCamera
     Blend:
       Style: 1
-      Time: 0.25
+      Time: 0.5
       CustomCurve:
         serializedVersion: 2
         m_Curve: []

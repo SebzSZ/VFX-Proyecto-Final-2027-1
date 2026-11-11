@@ -19,29 +19,37 @@ namespace FinalVFX.UI
             _slider.maxValue = 1f;
             _slider.wholeNumbers = false;
             _slider.interactable = false;
-            if (_valueLabel == null) _valueLabel = ResourceBarValue.Create(transform);
+            if (_valueLabel == null)
+                _valueLabel = ResourceBarValue.Create(transform);
         }
 
-        private void Start()
+        private void Start() => Refresh();
+
+        private void Refresh()
         {
-            Refresh(_health.Current, _health.Maximum);
+            float maximum = _health.Maximum;
+            _slider.SetValueWithoutNotify(maximum > 0f ? _health.Current / maximum : 0f);
+
+            int total = Mathf.CeilToInt(Mathf.Max(0f, _health.Current + _health.Shield));
+            int max = Mathf.CeilToInt(Mathf.Max(0f, maximum));
+            string content = $"{total}/{max}";
+            if (_valueLabel.text != content)
+                _valueLabel.text = content;
         }
 
-        private void Refresh(float current, float maximum)
-        {
-            _slider.SetValueWithoutNotify(maximum > 0f ? current / maximum : 0f);
-            ResourceBarValue.Refresh(_valueLabel, current, maximum);
-        }
+        private void HandleResourceChanged(float value, float maximum) => Refresh();
 
         private void OnEnable()
         {
-            _health.Changed += Refresh;
-            Refresh(_health.Current, _health.Maximum);
+            _health.Changed += HandleResourceChanged;
+            _health.ShieldChanged += HandleResourceChanged;
+            Refresh();
         }
 
         private void OnDisable()
         {
-            _health.Changed -= Refresh;
+            _health.Changed -= HandleResourceChanged;
+            _health.ShieldChanged -= HandleResourceChanged;
         }
     }
 }

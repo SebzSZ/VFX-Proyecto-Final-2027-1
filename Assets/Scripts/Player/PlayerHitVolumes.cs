@@ -32,6 +32,11 @@ namespace FinalVFX.Player
 
         private readonly HashSet<HealthComponent> _touched = new HashSet<HealthComponent>();
 
+        private PlayerUltimateEffects _ultimate;
+        public event System.Action<HealthComponent, float> BasicDamaged;
+
+        private void Awake() => _ultimate = GetComponent<PlayerUltimateEffects>();
+
         public void BeginStrike() => _touched.Clear();
 
         public void Strike(bool basic, WeaponDefinition.WeaponPoseType pose, float damage)
@@ -39,6 +44,8 @@ namespace FinalVFX.Player
             if (!isActiveAndEnabled)
                 return;
 
+            if (basic && _ultimate)
+                damage *= _ultimate.BasicDamageMultiplier;
             Physics.SyncTransforms();
             if (!basic && pose == WeaponDefinition.WeaponPoseType.Scythe)
             {
@@ -51,7 +58,7 @@ namespace FinalVFX.Player
             Quaternion orientation = transform.rotation * Quaternion.Euler(box.euler);
             foreach (Collider target in Physics.OverlapBox(center, box.size * 0.5f,
                 orientation, _enemies, QueryTriggerInteraction.Collide))
-                Touch(target, damage);
+                Touch(target, damage, basic);
         }
 
         private void HitCircle(float damage)
@@ -87,11 +94,14 @@ namespace FinalVFX.Player
             }
         }
 
-        private void Touch(Collider target, float damage)
+        private void Touch(Collider target, float damage, bool basic = false)
         {
             var health = target.GetComponentInParent<HealthComponent>();
-            if (health && _touched.Add(health))
-                health.ReceiveDamage(damage);
+            if (!health || !_touched.Add(health))
+                return;
+            float applied = health.ReceiveDamage(damage);
+            if (basic && applied > 0f)
+                BasicDamaged?.Invoke(health, applied);
         }
 
         private void OnDrawGizmosSelected()

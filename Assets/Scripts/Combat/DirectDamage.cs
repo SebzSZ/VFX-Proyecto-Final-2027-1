@@ -40,7 +40,7 @@ namespace FinalVFX.Combat
             if (health == null)
                 return false;
 
-            if (health.ReceiveDamage(_damage, _invulnerabilityDuration) <= 0f)
+            if (health.ReceiveHit(_damage, _invulnerabilityDuration).Total <= 0f)
                 return false;
 
             if (!health.IsDead && health.TryGetComponent(out PlayerController player))

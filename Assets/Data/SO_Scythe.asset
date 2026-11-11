@@ -59,3 +59,15 @@ MonoBehaviour:
     damage: 20
     from: 0.3
     until: 0.5
+  _secondaryCooldown: 5
+  _ultimateCooldown: 15
+  _ultimateEffect:
+    duration: 8
+    swordBasicMultiplier: 1.5
+    swordShieldPerBasic: 5
+    scytheHealingPerBasic: 4
+    auraDamage: 3
+    auraInterval: 0.5
+    auraRadius: 5
+    auraHeight: 2
+    auraCenterHeight: 1
