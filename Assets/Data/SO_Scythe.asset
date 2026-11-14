@@ -54,19 +54,19 @@ MonoBehaviour:
     lockSeconds: 0.6
   _ultimate:
     clip: {fileID: 0}
-    lockSeconds: 1.2
+    lockSeconds: 1.5
   _secondaryImpact:
     damage: 20
     from: 0.3
     until: 0.5
-  _secondaryCooldown: 5
-  _ultimateCooldown: 15
+  _secondaryCooldown: 7.5
+  _ultimateCooldown: 40
   _ultimateEffect:
-    duration: 8
-    swordBasicMultiplier: 1.5
-    swordShieldPerBasic: 5
+    duration: 25
+    swordBasicMultiplier: 1.25
+    swordShieldPerBasic: 15
     scytheHealingPerBasic: 4
-    auraDamage: 3
+    auraDamage: 2
     auraInterval: 0.5
     auraRadius: 5
     auraHeight: 2

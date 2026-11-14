@@ -50,7 +50,7 @@ MonoBehaviour:
     damage: 25
     from: 0.3
     until: 0.5
-  _secondaryCooldown: 5
+  _secondaryCooldown: 10
   _ultimateCooldown: 45
   _ultimateEffect:
     duration: 30

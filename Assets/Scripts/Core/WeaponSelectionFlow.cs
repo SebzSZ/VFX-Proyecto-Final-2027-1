@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using FinalVFX.Combat;
 using FinalVFX.Player;
 using UnityEngine;
@@ -30,6 +30,9 @@ namespace FinalVFX.Core
         [SerializeField] private InvulnerabilityComponent _invulnerability;
         [SerializeField] private CharacterController _characterController;
         [SerializeField] private Transform _startPos;
+
+        [Header("Arena introduction")]
+        [SerializeField] private ArenaIntroDirector _arenaIntro;
 
         [Header("Encounter")]
         [SerializeField] private CanvasGroup _blackScreen;
@@ -67,7 +70,7 @@ namespace FinalVFX.Core
         {
             Object[] required = { _input, _presentation, _camera, _player, _equipment,
                 _invulnerability, _characterController, _startPos, _blackScreen,
-                _gameplayHUD, _encounterActors };
+                _gameplayHUD, _encounterActors, _arenaIntro };
             foreach (Object reference in required)
             {
                 if (reference != null) continue;
@@ -79,7 +82,7 @@ namespace FinalVFX.Core
                 Debug.LogError("PlayerEquipment necesita un WeaponSocket.", _equipment);
                 return false;
             }
-            return _input.ValidateSetup() && _presentation.ValidateSetup() && _camera.ValidateSetup();
+            return _input.ValidateSetup() && _presentation.ValidateSetup() && _camera.ValidateSetup() && _arenaIntro.ValidateSetup();
         }
 
         private void OnEnable()
@@ -172,6 +175,7 @@ namespace FinalVFX.Core
             _player.SetSequenceLocked(false);
             _player.SetGameplayEnabled(true);
             _encounterActors.SetActive(true);
+            _arenaIntro.Arm();
         }
 
         private void HandleDeath()
@@ -251,3 +255,4 @@ namespace FinalVFX.Core
         }
     }
 }
+
