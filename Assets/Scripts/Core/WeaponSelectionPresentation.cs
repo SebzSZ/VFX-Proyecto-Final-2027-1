@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using FinalVFX.Combat;
 using UnityEngine;
@@ -87,7 +87,7 @@ namespace FinalVFX.Core
                 float target = selecting && i == selectedIndex ? 1f : 0f;
                 CanvasGroup label = _entries[i].NameGroup;
                 label.alpha = Mathf.MoveTowards(label.alpha, target,
-                    Time.unscaledDeltaTime / Mathf.Max(0.01f, _weaponNameFadeDuration));
+                    Time.deltaTime / Mathf.Max(0.01f, _weaponNameFadeDuration));
             }
         }
 
@@ -113,7 +113,7 @@ namespace FinalVFX.Core
             float elapsed = 0f;
             while (elapsed < duration)
             {
-                elapsed += Time.unscaledDeltaTime;
+                elapsed += Time.deltaTime;
                 float progress = Mathf.SmoothStep(0f, 1f,
                     Mathf.Clamp01(elapsed / Mathf.Max(0.01f, duration)));
                 foreach (SelectionEntry entry in _entries)

@@ -165,7 +165,7 @@ namespace FinalVFX.Core
         {
             yield return _presentation.Disappear();
             if (_beforeThirdPersonDelay > 0f)
-                yield return new WaitForSecondsRealtime(_beforeThirdPersonDelay);
+                yield return new WaitForSeconds(_beforeThirdPersonDelay);
             yield return _camera.EnterGameplay();
             if (_state == FlowState.Failed) yield break;
 
@@ -212,7 +212,7 @@ namespace FinalVFX.Core
 
             while (elapsed < duration)
             {
-                elapsed += Time.unscaledDeltaTime;
+                elapsed += Time.deltaTime;
 
                 float progress = Mathf.SmoothStep(
                     0f, 1f, Mathf.Clamp01(elapsed / duration));

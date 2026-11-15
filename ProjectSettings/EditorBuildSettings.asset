@@ -6,8 +6,14 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Dev/SCN_Dev_Combat1.unity
-    guid: dddcced6bfb73f94daca2f3ce3e27f4b
+    path: Assets/Scenes/Game/SCN_MainMenu.unity
+    guid: bda7fc9c3bb237248b49c81d3fabda14
+  - enabled: 1
+    path: Assets/Scenes/Game/SCN_Story.unity
+    guid: d9f26acc6b12b0d478c80c04f24e148f
+  - enabled: 1
+    path: Assets/Scenes/Game/SCN_Arena.unity
+    guid: 903ac67caf1286543a9b8c4633d93243
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: f3ba7cdf103068e4e979f5014790ab37, type: 3}
   m_UseUCBPForAssetBundles: 0

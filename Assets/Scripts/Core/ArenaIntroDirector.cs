@@ -1,4 +1,6 @@
 ﻿using System;
+using FinalVFX.UI;
+using FinalVFX.Audio;
 using System.Collections;
 using FinalVFX.Boss;
 using FinalVFX.Combat;
@@ -27,6 +29,9 @@ namespace FinalVFX.Core
             [Range(1, 300)] public float focalLength = 50;
         }
 
+        [SerializeField] private ArenaMusic _music;
+        [SerializeField] private LoadingIndicator _loadingIndicator;
+        private double _activeShotStart;
         [Header("Existing scene objects")]
         [SerializeField] private PlayerController _player;
         [SerializeField] private PlayerEquipment _equipment;
@@ -46,7 +51,7 @@ namespace FinalVFX.Core
         [SerializeField] private CinemachineCamera _introCamera;
         [SerializeField] private CinemachineCamera _gameplayCamera;
         [SerializeField] private CinemachineCamera _bossLockCamera;
-        [SerializeField] private Shot[] _shots = { new Shot(), new Shot(), new Shot() };
+        [SerializeField] private Shot[] _shots = { new Shot(), new Shot(), new Shot(), new Shot() };
         [Header("Independent fog and UI")]
         [SerializeField] private ArenaIntroFog _heavyFog;
         [SerializeField] private GameObject _skipHint;
@@ -69,10 +74,12 @@ namespace FinalVFX.Core
         private Vector3 _shotPosition;
         private Quaternion _shotRotation;
 
+        public bool BlocksPause => _running;
+
         public bool ValidateSetup()
         {
             UnityEngine.Object[] required = {
-                _player, _equipment, _playerCamera, _body, _playerProtection,
+                _loadingIndicator, _music, _player, _equipment, _playerCamera, _body, _playerProtection,
                 _boss, _bossProtection, _playerDestination, _bossAim, _entranceRock,
                 _gameplayHUD, _bossHUD, _blackScreen, _brain, _introCamera,
                 _gameplayCamera, _bossLockCamera, _heavyFog, _skipHint
@@ -83,7 +90,11 @@ namespace FinalVFX.Core
                 Array.Exists(_shots, s => s == null || s.pose == null || s.seconds <= 0) ||
                 _introCamera == _gameplayCamera || _introCamera == _bossLockCamera ||
                 string.IsNullOrWhiteSpace(_seenKey))
-            { Debug.LogError("ArenaIntroDirector: revisa los tres planos, cámaras y Seen Key.", this); return false; }
+            { Debug.LogError("ArenaIntroDirector: revisa los cuatro planos, cámaras y Seen Key.", this); return false; }
+            float total = 0;
+            foreach (var shot in _shots) total += shot.seconds;
+            if (!_music.Configured || Mathf.Abs(total - 20f) > 0.001f)
+            { Debug.LogError("Asigna ArenaMusic y configura cuatro planos que sumen 20 s.", this); return false; }
             return true;
         }
 
@@ -109,7 +120,7 @@ namespace FinalVFX.Core
 
         public void TryEnter(Collider other)
         {
-            if (!_armed || _running || _finished || _player.IsSequenceLocked ||
+            if (!_music || !_music.Ready || !_armed || _running || _finished || _player.IsSequenceLocked ||
                 _equipment.EquippedWeapon == null ||
                 other.GetComponentInParent<PlayerController>() != _player) return;
             _running = true;
@@ -118,7 +129,13 @@ namespace FinalVFX.Core
 
         private void Update()
         {
-            if (!_running || !_skipAllowed || !Application.isFocused)
+            if (FinalVFX.Menu.PauseMenu.IsPaused ||
+                FinalVFX.Menu.PauseMenu.PausePressedThisFrame)
+            {
+                return;
+            }
+
+            if (!_running || !_skipAllowed || !_music.Committed || AudioSettings.dspTime < _music.IntroStart || !Application.isFocused)
                 return;
 
             bool keyboardPressed =
@@ -136,7 +153,7 @@ namespace FinalVFX.Core
         private void LateUpdate()
         {
             if (_currentShot == null) return;
-            _shotElapsed += Time.unscaledDeltaTime;
+            _shotElapsed = (float)(AudioSettings.dspTime - _activeShotStart);
             float eased = Mathf.SmoothStep(0, 1, Mathf.Clamp01(_shotElapsed / _currentShot.seconds));
             Transform cam = _introCamera.transform;
             cam.SetPositionAndRotation(
@@ -152,12 +169,14 @@ namespace FinalVFX.Core
 
         private IEnumerator Play()
         {
+            double requestedBoundary = _music.CurrentLoopEnd();
             _skip = false;
             _skipAllowed = PlayerPrefs.GetInt(_seenKey, 0) == 1;
             _player.SetSequenceLocked(true);
             _player.SetGameplayEnabled(false);
             _playerProtection.SetWindow(this, Time.time, float.PositiveInfinity);
             _gameplayHUD.SetActive(false);
+            _loadingIndicator.SetVisible(true);
             yield return Fade(1);
 
             _body.enabled = false;
@@ -173,7 +192,7 @@ namespace FinalVFX.Core
             float fogTime = 0;
             while (fogTime < _fogSeconds)
             {
-                fogTime += Time.unscaledDeltaTime;
+                fogTime += Time.deltaTime;
                 _heavyFog.SetOpacity(1 - Mathf.Clamp01(fogTime / _fogSeconds));
                 yield return null;
             }
@@ -188,27 +207,65 @@ namespace FinalVFX.Core
             _introCamera.Priority = 1000;
             _introCamera.gameObject.SetActive(true);
 
-            bool completed = true;
-            foreach (Shot shot in _shots)
+            PrepareShot(_shots[0]);
+            yield return WaitForCamera(_introCamera);
+            if (!_cameraReady)
             {
-                if (_skip) { completed = false; break; }
-                PrepareShot(shot);
-                yield return WaitForCamera(_introCamera);
-                if (!_cameraReady) { completed = false; break; }
-                _skipHint.SetActive(_skipAllowed);
-                _currentShot = shot;
-                yield return Fade(0);
-                while (_shotElapsed < shot.seconds && !_skip) yield return null;
-                _skipHint.SetActive(false);
-                yield return Fade(1);
-                _currentShot = null;
-                if (_skip) { completed = false; break; }
+                _loadingIndicator.SetVisible(false);
+                _music.StopAll();
+                _running = false;
+                Debug.LogError("Cámara de intro no disponible. Reinicia Play tras revisar referencias.", this);
+                yield break;
             }
+            _music.CommitIntro(requestedBoundary);
+            while (AudioSettings.dspTime < _music.IntroStart) yield return null;
+            _loadingIndicator.SetVisible(false);
 
+            bool completed = true;
+            int activeIndex = -1;
+            _skipHint.SetActive(_skipAllowed);
+            while (AudioSettings.dspTime < _music.BossStart)
+            {
+                if (_skip)
+                {
+                    completed = false;
+                    double end = _music.SkipToBoss(_fadeSeconds);
+                    double begin = AudioSettings.dspTime;
+                    float from = _blackScreen.alpha;
+                    while (AudioSettings.dspTime < end)
+                    {
+                        float p = (float)((AudioSettings.dspTime - begin) / (end - begin));
+                        _blackScreen.alpha = Mathf.Lerp(from, 1, Mathf.SmoothStep(0, 1, p));
+                        yield return null;
+                    }
+                    break;
+                }
+                double elapsed = AudioSettings.dspTime - _music.IntroStart;
+                double slotStart = 0;
+                int index = 0;
+                while (index < _shots.Length - 1 && elapsed >= slotStart + _shots[index].seconds)
+                    slotStart += _shots[index++].seconds;
+                Shot shot = _shots[index];
+                if (activeIndex != index)
+                {
+                    PrepareShot(shot);
+                    _activeShotStart = _music.IntroStart + slotStart;
+                    _currentShot = shot;
+                    activeIndex = index;
+                }
+                // Every slot includes its own fade-in and fade-out; no accumulated waits.
+                float local = (float)(elapsed - slotStart);
+                float fade = Mathf.Min(_fadeSeconds, shot.seconds / 2);
+                float visible = Mathf.Min(Mathf.Clamp01(local / fade),
+                    Mathf.Clamp01((shot.seconds - local) / fade));
+                _blackScreen.alpha = 1f - Mathf.SmoothStep(0, 1, visible);
+                _blackScreen.blocksRaycasts = true;
+                yield return null;
+            }
+            _blackScreen.alpha = 1;
             _currentShot = null;
             _skipAllowed = false;
             _skipHint.SetActive(false);
-            yield return Fade(1);
             _introCamera.gameObject.SetActive(false);
             DestroyFocusVolume();
             RestorePlayer();
@@ -219,6 +276,8 @@ namespace FinalVFX.Core
             RestoreBlends();
             if (!_cameraReady)
             {
+                _loadingIndicator.SetVisible(false);
+                _music.StopAll();
                 Debug.LogError("No se recuperó CM_PlayerCamera. Combate bloqueado. Revisa canales/prioridades y reinicia Play.", this);
                 _running = false;
                 yield break;
@@ -268,7 +327,7 @@ namespace FinalVFX.Core
             yield return new WaitForEndOfFrame();
             while (!ReferenceEquals(_brain.ActiveVirtualCamera, target) || _brain.IsBlending)
             {
-                elapsed += Time.unscaledDeltaTime;
+                elapsed += Time.deltaTime;
                 if (elapsed >= _cameraTimeout)
                 {
                     Debug.LogError("ArenaIntroDirector: no se activó " + target.name, this);
@@ -288,7 +347,7 @@ namespace FinalVFX.Core
             float elapsed = 0;
             while (elapsed < _fadeSeconds)
             {
-                elapsed += Time.unscaledDeltaTime;
+                elapsed += Time.deltaTime;
                 _blackScreen.alpha = Mathf.Lerp(from, target,
                     Mathf.SmoothStep(0, 1, Mathf.Clamp01(elapsed / _fadeSeconds)));
                 yield return null;
@@ -357,6 +416,8 @@ namespace FinalVFX.Core
         private void OnDisable()
         {
             StopAllCoroutines();
+            if (_loadingIndicator) _loadingIndicator.SetVisible(false);
+            if (_running && _music) _music.StopAll();
             _currentShot = null;
             RestorePlayer();
             RestoreBlends();
@@ -369,3 +430,5 @@ namespace FinalVFX.Core
         }
     }
 }
+
+

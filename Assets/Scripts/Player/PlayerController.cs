@@ -55,6 +55,9 @@ namespace FinalVFX.Player
 
         private void Update()
         {
+            if (FinalVFX.Menu.PauseMenu.IsPaused)
+                return;
+
             float deltaTime = Time.deltaTime;
             if (deltaTime <= 0f || _health.IsDead)
                 return;
@@ -244,9 +247,19 @@ namespace FinalVFX.Player
 
         private void ApplyCursorState()
         {
-            bool locked = isActiveAndEnabled && (_gameplayEnabled || _sequenceLocked) && _hasFocus;
+            bool locked =
+                !FinalVFX.Menu.PauseMenu.IsPaused &&
+                isActiveAndEnabled &&
+                (_gameplayEnabled || _sequenceLocked) &&
+                _hasFocus;
+
             Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !locked;
+        }
+
+        public void RefreshCursorState()
+        {
+            ApplyCursorState();
         }
     }
 }

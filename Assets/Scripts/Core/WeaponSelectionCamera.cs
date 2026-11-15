@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using FinalVFX.Player;
 using Unity.Cinemachine;
@@ -66,7 +66,7 @@ namespace FinalVFX.Core
             float elapsed = 0f;
             while (elapsed < _initialAimDuration)
             {
-                elapsed += Time.unscaledDeltaTime;
+                elapsed += Time.deltaTime;
                 _selectionCamera.transform.rotation = Quaternion.Slerp(initialRotation,
                     targetRotation, Mathf.SmoothStep(0f, 1f,
                         Mathf.Clamp01(elapsed / _initialAimDuration)));
@@ -89,7 +89,7 @@ namespace FinalVFX.Core
                 Quaternion.LookRotation(direction, Vector3.up);
 
             float blend = 1f - Mathf.Exp(
-                    -_lookSharpness * Time.unscaledDeltaTime);
+                    -_lookSharpness * Time.deltaTime);
 
             cameraTransform.rotation = Quaternion.Slerp(
                 cameraTransform.rotation, target, blend);
@@ -107,7 +107,7 @@ namespace FinalVFX.Core
 
             while (true)
             {
-                elapsed += Time.unscaledDeltaTime;
+                elapsed += Time.deltaTime;
 
                 if (!playerRevealed &&
                     Vector3.Distance(
@@ -145,7 +145,7 @@ namespace FinalVFX.Core
             while (!ReferenceEquals(_brain.ActiveVirtualCamera, target) ||
                    _brain.IsBlending)
             {
-                elapsed += Time.unscaledDeltaTime;
+                elapsed += Time.deltaTime;
 
                 if (elapsed > _cameraTimeout)
                 {

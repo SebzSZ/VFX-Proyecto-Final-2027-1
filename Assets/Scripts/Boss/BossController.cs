@@ -139,6 +139,9 @@ namespace FinalVFX.Boss
 
         private void Update()
         {
+            if (FinalVFX.Menu.PauseMenu.IsPaused)
+                return;
+
             if (Time.deltaTime <= 0f)
                 return;
 
