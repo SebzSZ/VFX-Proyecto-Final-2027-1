@@ -33,13 +33,37 @@ namespace FinalVFX.Player
         private PlayerCombat _combat;
         private bool _hasFocus;
         private bool _sequenceLocked;
+        private Vector3 _bossForceVelocity;
+        private float _bossForceRemaining;
+        private float _bossStunRemaining;
+        public bool IsBossControlled => _bossForceRemaining > 0f || _bossStunRemaining > 0f;
+
+        public void ApplyBossControl(Vector3 displacement, float moveSeconds, float stunSeconds)
+        {
+            if (_health.IsDead || _sequenceLocked || !_gameplayEnabled) return;
+            _dodge.Cancel();
+            _combat.InterruptByDamage();
+            _locomotion.Suspend(_input.SprintHeld);
+            _pushRemaining = 0f;
+            _combat.ResetCombat();
+            _bossForceRemaining = Mathf.Max(0.01f, moveSeconds);
+            _bossForceVelocity = Vector3.ProjectOnPlane(displacement, Vector3.up) / _bossForceRemaining;
+            _bossStunRemaining = Mathf.Max(_bossStunRemaining, Mathf.Max(0f, stunSeconds));
+        }
+
+        private void ClearBossControl()
+        {
+            _bossForceRemaining = 0f;
+            _bossStunRemaining = 0f;
+            _bossForceVelocity = Vector3.zero;
+        }
 
         public event Action Died;
 
         public bool IsSprinting => _locomotion.IsSprinting;
         public bool IsDodging => _dodge.IsDodging;
         public bool IsSequenceLocked => _sequenceLocked;
-        public bool CanAct => isActiveAndEnabled && !_sequenceLocked && _gameplayEnabled && _hasFocus && !_health.IsDead && !_dodge.IsDodging && !_combat.Busy && _pushRemaining <= 0f && Time.timeScale > 0f;
+        public bool CanAct => isActiveAndEnabled && !_sequenceLocked && !IsBossControlled && _gameplayEnabled && _hasFocus && !_health.IsDead && !_dodge.IsDodging && !_combat.Busy && _pushRemaining <= 0f && Time.timeScale > 0f;
 
         private void Awake()
         {
@@ -71,6 +95,19 @@ namespace FinalVFX.Player
                     false,
                     deltaTime);
 
+                return;
+            }
+
+            if (IsBossControlled)
+            {
+                _locomotion.Suspend(_input.SprintHeld);
+                float slice = Mathf.Min(deltaTime, _bossForceRemaining);
+                _motor.SimulatePush(_bossForceVelocity * slice, deltaTime);
+                _bossForceRemaining = Mathf.Max(0f, _bossForceRemaining - slice);
+                _bossStunRemaining = Mathf.Max(0f, _bossStunRemaining - (deltaTime - slice));
+                _cameraController.TickLook(_hasFocus ? _input.Look : Vector2.zero,
+                    _input.IsLookingFromMouse, deltaTime);
+                _cameraController.FollowTarget();
                 return;
             }
 
@@ -149,7 +186,7 @@ namespace FinalVFX.Player
 
         public void ReactToDirectDamage(Vector3 origin)
         {
-            if (!isActiveAndEnabled || _health.IsDead || _sequenceLocked || !_gameplayEnabled)
+            if (!isActiveAndEnabled || _health.IsDead || _sequenceLocked || !_gameplayEnabled || IsBossControlled)
                 return;
 
             Vector3 away = Vector3.ProjectOnPlane(transform.position - origin, Vector3.up);
@@ -170,6 +207,7 @@ namespace FinalVFX.Player
             {
                 _dodge.Cancel();
                 _combat.ResetCombat();
+                ClearBossControl();
                 _pushRemaining = 0f;
             }
 
@@ -181,6 +219,7 @@ namespace FinalVFX.Player
         {
             _dodge.Cancel();
             _combat.ResetEncounter();
+            ClearBossControl();
             _pushRemaining = 0f;
             _motor.ResetMotion();
             _locomotion.ResetState();
@@ -200,6 +239,7 @@ namespace FinalVFX.Player
             {
                 _dodge.Cancel();
                 _combat.ResetCombat();
+                ClearBossControl();
                 _pushRemaining = 0f;
                 _motor.ResetMotion();
                 _locomotion.ResetState();
@@ -228,6 +268,7 @@ namespace FinalVFX.Player
             _health.Died -= HandleDeath;
             _dodge.Cancel();
             _combat.ResetCombat();
+            ClearBossControl();
             _pushRemaining = 0f;
             ApplyCursorState();
         }
@@ -239,6 +280,7 @@ namespace FinalVFX.Player
             {
                 _dodge.Cancel();
                 _combat.ResetCombat();
+
                 _pushRemaining = 0f;
             }
 
@@ -263,3 +305,6 @@ namespace FinalVFX.Player
         }
     }
 }
+
+
+

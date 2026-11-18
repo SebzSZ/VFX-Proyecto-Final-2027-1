@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace FinalVFX.Combat
 {
@@ -82,6 +82,7 @@ namespace FinalVFX.Combat
         {
             public Impact impact = new Impact();
             public AnimationClip clip;
+            public AudioClip soundEffect;
             [Tooltip("Segundos si no hay clip.")]
             [Min(0.01f)] public float fallbackDuration = 0.6f;
             [Tooltip("Fracción del golpe en que se abre la ventana.")]
@@ -98,6 +99,7 @@ namespace FinalVFX.Combat
         public sealed class SingleAction
         {
             public AnimationClip clip;
+            public AudioClip soundEffect;
             [Min(0f)] public float lockSeconds = 0.6f;
         }
 

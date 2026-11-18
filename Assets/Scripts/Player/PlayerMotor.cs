@@ -65,7 +65,9 @@ namespace FinalVFX.Player
             Vector3 velocity = _horizontalVelocity;
             velocity.y = (previousVerticalSpeed + _verticalSpeed) * 0.5f;
 
-            CollisionFlags collisions = _characterController.Move(velocity * deltaTime);
+            Vector3 displacement = FinalVFX.Boss.BossFogBarrier.Constrain(
+                _characterController, velocity * deltaTime);
+            CollisionFlags collisions = _characterController.Move(displacement);
 
             if ((collisions & CollisionFlags.Above) != 0 && _verticalSpeed > 0f)
                 _verticalSpeed = 0f;
@@ -112,3 +114,4 @@ namespace FinalVFX.Player
         }
     }
 }
+

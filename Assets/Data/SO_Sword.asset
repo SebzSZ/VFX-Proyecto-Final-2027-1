@@ -16,8 +16,8 @@ MonoBehaviour:
   _equippedPrefab: {fileID: 1523577948448731715, guid: c4c320c470fec9f45af0194a4ea7d4f5, type: 3}
   _maximumHealth: 120
   _maximumStamina: 80
-  _localPosition: {x: -0.06, y: 0.13, z: -0.16}
-  _localEulerAngles: {x: -40, y: 75, z: -155}
+  _localPosition: {x: -0.067, y: 0.196, z: -0.228}
+  _localEulerAngles: {x: -100, y: -10, z: -65}
   _localScale: {x: 0.5, y: 0.5, z: 0.5}
   _poseType: 1
   _basicSteps:
@@ -25,7 +25,8 @@ MonoBehaviour:
       damage: 7
       from: 0.3
       until: 0.5
-    clip: {fileID: -5087658142375768607, guid: 0886089e3c103bb4189958f431c44376, type: 3}
+    clip: {fileID: 6676633584517823413, guid: 453a84b1a51ed2047833ebd632588d89, type: 3}
+    soundEffect: {fileID: 8300000, guid: 1bf5ee8d09c440044b28585c34564d8f, type: 3}
     fallbackDuration: 0.6
     open: 0.5
     close: 0.7
@@ -34,7 +35,8 @@ MonoBehaviour:
       damage: 11
       from: 0.3
       until: 0.5
-    clip: {fileID: 8041926487811860599, guid: e7c37d31ee3d7a5438f3902e1467c7b2, type: 3}
+    clip: {fileID: -1935123923279041325, guid: 453a84b1a51ed2047833ebd632588d89, type: 3}
+    soundEffect: {fileID: 8300000, guid: 1bf5ee8d09c440044b28585c34564d8f, type: 3}
     fallbackDuration: 0.6
     open: 0.5
     close: 0.7
@@ -42,6 +44,7 @@ MonoBehaviour:
   _basicRestartDelay: 0.15
   _secondary:
     clip: {fileID: 0}
+    soundEffect: {fileID: 8300000, guid: 27fcf853e2d695143a80b71010f2e186, type: 3}
     lockSeconds: 0.6
   _ultimate:
     clip: {fileID: 0}

@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Splines;
 using UnityEngine.VFX;
 using FinalVFX.Boss;
+using FinalVFX.Audio;
 
 namespace FinalVFX.Dragon
 {
@@ -17,6 +18,11 @@ namespace FinalVFX.Dragon
         [SerializeField] private Transform breathAim;
         [SerializeField] private Transform[] lowWaypoints;
         [SerializeField] private DragonLavaZone[] zones;
+
+        [Header("Audio")]
+        [SerializeField] private AudioClip _attackDecisionSound;
+        [SerializeField] private AudioClip _fireLoopSound;
+        private SoundEffectPool.Handle _fireSound;
 
         [Header("Vuelo")]
         [SerializeField, Min(0.1f)] private float moveSpeed = 10f;
@@ -213,6 +219,7 @@ namespace FinalVFX.Dragon
                 case State.Wandering:
                     if (Time.time >= nextAttack && SelectTarget())
                     {
+                        SoundEffectPool.Instance.Play(_attackDecisionSound);
                         state = State.Approaching;
                         break;
                     }
@@ -581,6 +588,7 @@ namespace FinalVFX.Dragon
             {
                 fireStarted = true;
                 breath.Play();
+                _fireSound = SoundEffectPool.Instance.Play(_fireLoopSound, loop: true);
             }
 
             if (fireStarted && !zoneIgnited)
@@ -598,6 +606,7 @@ namespace FinalVFX.Dragon
             if (fireStarted && !fireStopped && progress >= fireEnd)
             {
                 fireStopped = true;
+                _fireSound.Stop();
                 breath.Stop();
             }
 
@@ -610,6 +619,7 @@ namespace FinalVFX.Dragon
 
         private void ResumeWandering()
         {
+            _fireSound.Stop();
             flightPathReady = false;
             breath.Stop();
             target = null;
@@ -650,6 +660,7 @@ namespace FinalVFX.Dragon
 
         private void OnDisable()
         {
+            _fireSound.Stop();
             if (breath != null)
                 breath.Stop();
 

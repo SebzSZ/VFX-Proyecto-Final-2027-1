@@ -17,7 +17,7 @@ MonoBehaviour:
   ChaseStoppingDistance: 1.8
   NearDistance: 4
   FarDistance: 12
-  DecisionInterval: 3
+  DecisionInterval: 2
   RepeatMultiplier: 0.25
   Attacks:
   - Id: 0
@@ -45,3 +45,8 @@ MonoBehaviour:
     FarWeight: 0
     Cooldown: 1.5
     MeleeWeight: 12
+  - Id: 5
+    NearWeight: 4
+    FarWeight: 8
+    Cooldown: 3
+    MeleeWeight: 1

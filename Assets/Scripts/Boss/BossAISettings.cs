@@ -9,7 +9,8 @@ namespace FinalVFX.Boss
         AnteMi = 1,
         EnGarde = 2,
         LanzaPrimordial = 3,
-        AtaqueBasico = 4
+        AtaqueBasico = 4,
+        Blasfemia = 5
     }
 
     [Serializable]

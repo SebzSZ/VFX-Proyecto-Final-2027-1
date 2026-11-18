@@ -1,4 +1,5 @@
-﻿using FinalVFX.Combat;
+using FinalVFX.Combat;
+using FinalVFX.Audio;
 using UnityEngine;
 
 namespace FinalVFX.Player
@@ -246,6 +247,7 @@ namespace FinalVFX.Player
             _queued = false;
 
             StartImpact(weapon, now);
+            SoundEffectPool.Instance.Play(step.soundEffect);
             if (!_presentation.PlayCombatClip(step.clip))
                 Debug.Log($"{weapon.DisplayName} · básico {index + 1}/{weapon.StepCount}", this);
         }
@@ -256,6 +258,7 @@ namespace FinalVFX.Player
             State = state;
             _startedAt = now;
             _duration = action.lockSeconds;
+            SoundEffectPool.Instance.Play(action.soundEffect);
             if (state == ActionState.Secondary)
                 StartImpact(weapon, now);
             if (!_presentation.PlayCombatClip(action.clip))
