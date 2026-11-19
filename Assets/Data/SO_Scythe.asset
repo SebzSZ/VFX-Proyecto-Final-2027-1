@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FinalVFX.Combat.WeaponDefinition
   _displayName: "Guada\xF1a del Cosechador Nocturno"
   _equippedPrefab: {fileID: 8327987822983675449, guid: ef0334fdcbac88f40b4f72079365b3d6, type: 3}
-  _maximumHealth: 80
-  _maximumStamina: 120
+  _maximumHealth: 450
+  _maximumStamina: 250
   _localPosition: {x: -0.392, y: 0.252, z: -0.359}
   _localEulerAngles: {x: 175, y: -140, z: -160}
   _localScale: {x: 0.75, y: 0.75, z: 0.75}
@@ -58,6 +58,7 @@ MonoBehaviour:
     lockSeconds: 0.6
   _ultimate:
     clip: {fileID: 0}
+    soundEffect: {fileID: 0}
     lockSeconds: 1.5
   _secondaryImpact:
     damage: 20

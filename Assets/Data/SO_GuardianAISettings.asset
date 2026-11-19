@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57ce3e3d1afa29947aa82b340f3abaa4, type: 3}
   m_Name: SO_GuardianAISettings
   m_EditorClassIdentifier: Assembly-CSharp::FinalVFX.Boss.BossAISettings
-  VisionDistance: 20
+  VisionDistance: 30
   MeleeDistance: 2.5
   ChaseStoppingDistance: 1.8
   NearDistance: 4

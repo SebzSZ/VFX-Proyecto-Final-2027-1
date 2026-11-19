@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FinalVFX.Combat.WeaponDefinition
   _displayName: Espada de Fuerzas Divididas
   _equippedPrefab: {fileID: 1523577948448731715, guid: c4c320c470fec9f45af0194a4ea7d4f5, type: 3}
-  _maximumHealth: 120
-  _maximumStamina: 80
+  _maximumHealth: 600
+  _maximumStamina: 150
   _localPosition: {x: -0.067, y: 0.196, z: -0.228}
   _localEulerAngles: {x: -100, y: -10, z: -65}
   _localScale: {x: 0.5, y: 0.5, z: 0.5}
@@ -48,6 +48,7 @@ MonoBehaviour:
     lockSeconds: 0.6
   _ultimate:
     clip: {fileID: 0}
+    soundEffect: {fileID: 0}
     lockSeconds: 1.2
   _secondaryImpact:
     damage: 25

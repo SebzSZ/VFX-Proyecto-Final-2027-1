@@ -5129,12 +5129,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -12976,7 +12976,7 @@ MonoBehaviour:
   _targetLayers:
     serializedVersion: 2
     m_Bits: 256
-  _damage: 12
+  _damage: 45
   _invulnerabilityDuration: 0
   _manualMelee: 1
   _pushOrigin: {fileID: 0}
@@ -16362,7 +16362,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -19018,10 +19018,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d0cd38d18060d242a8ef9a62c6c8fb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinalVFX.Boss.GuardianHealth
-  _maxHealth: 50
+  _maxHealth: 1600
   _damageInvulnerabilityDuration: 0
-  _stunSeconds: 2.5
-  _pushDistance: 10
+  _stunSeconds: 3.5
+  _pushDistance: 12
 --- !u!114 &1142063952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37524,7 +37524,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96

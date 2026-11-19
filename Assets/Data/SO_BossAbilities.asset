@@ -21,8 +21,8 @@ MonoBehaviour:
     Clip: {fileID: 7400000, guid: b585dfa1236e1d341ad0dd1b993b30d8, type: 2}
     Preparation: 0.8
     Execution: 0.6
-    Recovery: 0.7
-    Damage: 25
+    Recovery: 0.8
+    Damage: 65
     HitInvulnerability: 0.3
     Radius: 3
     Height: 3
@@ -49,19 +49,19 @@ MonoBehaviour:
     PillarHitInterval: 0.5
   - Id: 1
     Clip: {fileID: 7400000, guid: d5ad1fe9f1e293941adabe1fc3393c30, type: 2}
-    Preparation: 0.8
-    Execution: 0.45
-    Recovery: 0.7
-    Damage: 25
+    Preparation: 1
+    Execution: 0.25
+    Recovery: 0.1
+    Damage: 40
     HitInvulnerability: 0.3
     Radius: 3
     Height: 3
     TravelDistance: 7
     PushDistance: 4
     ForceSeconds: 0.35
-    StunSeconds: 2
+    StunSeconds: 1.5
     RayDistance: 16
-    PullStopDistance: 2
+    PullStopDistance: 1.8
     DashFraction: 0.7
     RiseHeight: 3
     FogRadius: 4
@@ -79,15 +79,15 @@ MonoBehaviour:
     PillarHitInterval: 0.5
   - Id: 2
     Clip: {fileID: 7400000, guid: 516aeca0c0e0256448a1373f59e950bd, type: 2}
-    Preparation: 0.8
+    Preparation: 1.25
     Execution: 0.4
-    Recovery: 0.7
+    Recovery: 0.5
     Damage: 25
     HitInvulnerability: 0.3
-    Radius: 3
+    Radius: 2.5
     Height: 3
     TravelDistance: 7
-    PushDistance: 4
+    PushDistance: 3
     ForceSeconds: 0.35
     StunSeconds: 2
     RayDistance: 16
@@ -112,7 +112,7 @@ MonoBehaviour:
     Preparation: 1.2
     Execution: 15
     Recovery: 1.5
-    Damage: 25
+    Damage: 12
     HitInvulnerability: 0.3
     Radius: 3
     Height: 3
@@ -126,21 +126,21 @@ MonoBehaviour:
     RiseHeight: 3
     FogRadius: 4
     FogHeight: 6
-    FogFadeIn: 0.35
+    FogFadeIn: 0.6
     FogFadeOut: 0.6
     PillarNearRadius: 15
     NearPillarFraction: 0.5
     WaveInterval: 0.5
     PillarsPerWave: 15
-    PillarWarning: 1
-    PillarLifetime: 1.25
+    PillarWarning: 1.25
+    PillarLifetime: 1.75
     PillarRadius: 0.8
-    PillarHeight: 5
+    PillarHeight: 4
     PillarHitInterval: 0.5
   - Id: 4
     Clip: {fileID: -8322462376983536161, guid: 5d8b8970faf5de5468f9accaeed1e7d2, type: 3}
-    Preparation: 0.55
-    Execution: 0.18
+    Preparation: 0.25
+    Execution: 0.2
     Recovery: 0.55
     Damage: 25
     HitInvulnerability: 0.3
@@ -169,10 +169,10 @@ MonoBehaviour:
     PillarHitInterval: 0.5
   - Id: 5
     Clip: {fileID: 7400000, guid: 7bf5d662fb58ffa499b556f1037efead, type: 2}
-    Preparation: 1.2
-    Execution: 0.7
+    Preparation: 0.75
+    Execution: 0.75
     Recovery: 1
-    Damage: 25
+    Damage: 45
     HitInvulnerability: 0.3
     Radius: 5
     Height: 3
