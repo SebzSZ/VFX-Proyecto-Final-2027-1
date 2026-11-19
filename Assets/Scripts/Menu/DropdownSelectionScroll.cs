@@ -1,11 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace FinalVFX.Menu
 {
-    // Place on the TMP dropdown Template so each generated list gets its own copy.
-    [DisallowMultipleComponent]
     [RequireComponent(typeof(ScrollRect))]
     [DefaultExecutionOrder(100)]
     public sealed class DropdownSelectionScroll : MonoBehaviour
@@ -30,7 +28,6 @@ namespace FinalVFX.Menu
                 return;
             }
 
-            // Only follow focus changes; allow mouse-wheel scrolling otherwise.
             if (selected == _lastSelected ||
                 !(selected.transform is RectTransform item))
                 return;

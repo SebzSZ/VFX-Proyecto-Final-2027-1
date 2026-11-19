@@ -9,15 +9,14 @@ using Unity.Profiling;
 
 namespace FinalVFX.Boss
 {
-    [DisallowMultipleComponent]
     [RequireComponent(typeof(BossWanderMotor), typeof(GuardianHealth), typeof(NavMeshAgent))]
     public sealed class BossController : MonoBehaviour
     {
         public enum ActionPhase { Locomotion, Preparation, Execution, Recovery, Stunned, Dead }
         [SerializeField] private Transform _player;
         [SerializeField] private BossAISettings _settings;
-        [SerializeField] private bool _combatEnabled = true;
-        [SerializeField] private int _decisionSeed = 12345;
+        [SerializeField] private bool _combatEnabled;
+        [SerializeField] private int _decisionSeed;
         [Header("Habilidades y animación")]
         [SerializeField] private BossAbilitySettings _abilities;
         [SerializeField] private Animator _animator;
@@ -25,18 +24,18 @@ namespace FinalVFX.Boss
         [SerializeField] private DirectDamage _meleeDamage;
         [Header("Escenario")]
         [SerializeField] private Transform _arenaCenter;
-        [SerializeField, Min(0.1f)] private float _arenaRadius = 12f;
-        [SerializeField] private LayerMask _groundMask = 1 << 3;
-        [SerializeField] private LayerMask _obstacleMask = 1 << 3;
-        [SerializeField, Min(0.1f)] private float _groundProbeHeight = 15f;
+        [SerializeField, Min(0.1f)] private float _arenaRadius;
+        [SerializeField] private LayerMask _groundMask;
+        [SerializeField] private LayerMask _obstacleMask;
+        [SerializeField, Min(0.1f)] private float _groundProbeHeight;
         [Header("Recursos")]
         [SerializeField] private BossFogBarrier _fogPrefab;
         [SerializeField] private BossFirePillar _pillarPrefab;
         [Header("Precarga de Lanza Primordial")]
         [Tooltip("Límite de pilares simultáneos. Se precarga la cantidad calculada a partir de las oleadas, hasta este máximo. Se configura antes de Play.")]
-        [SerializeField, Min(1)] private int _pillarPoolMaximum = 128;
+        [SerializeField, Min(1)] private int _pillarPoolMaximum;
         [Tooltip("Pilares creados por frame durante la precarga inicial. El jefe espera a que termine la precarga antes de seleccionar ataques.")]
-        [SerializeField, Min(1)] private int _pillarPrewarmPerFrame = 8;
+        [SerializeField, Min(1)] private int _pillarPrewarmPerFrame;
         [Header("Prueba desde el menú contextual")]
         [SerializeField] private BossAttackId _testAttack;
 
@@ -74,28 +73,17 @@ namespace FinalVFX.Boss
             _motor = GetComponent<BossWanderMotor>();
             _agent = GetComponent<NavMeshAgent>();
             _health = GetComponent<GuardianHealth>();
-            if (_player)
-            {
-                _playerHealth = _player.GetComponent<HealthComponent>();
-                _playerController = _player.GetComponent<PlayerController>();
-                _playerBody = _player.GetComponent<CharacterController>();
-            }
+            _playerHealth = _player.GetComponent<HealthComponent>();
+            _playerController = _player.GetComponent<PlayerController>();
+            _playerBody = _player.GetComponent<CharacterController>();
             _meleeBox = _meleeDamage ? _meleeDamage.GetComponent<BoxCollider>() : null;
-            if (!_settings || !_abilities || !_animator || !_animator.runtimeAnimatorController ||
-                !_playerHealth || !_playerController || !_playerBody || !_arenaCenter ||
-                !_fogPrefab || !_pillarPrefab || !_rayOrigin || !_meleeBox || !_meleeDamage.ManualMelee)
-            {
-                Debug.LogError("BossController: completa las referencias de la guía y activa Manual Melee.", this);
-                enabled = false;
-                return;
-            }
+ 
             foreach (BossAttackId id in Enum.GetValues(typeof(BossAttackId)))
             {
                 _attackHashes[id] = Animator.StringToHash("Base Layer." + id);
                 BossAbility a = _abilities.Find(id);
                 if (a == null || a.Preparation <= 0f || a.Execution <= 0f || a.Recovery <= 0f)
                 {
-                    Debug.LogError("Completa las seis habilidades y sus tiempos positivos en Ability Settings.", this);
                     enabled = false;
                     return;
                 }
@@ -136,12 +124,11 @@ namespace FinalVFX.Boss
             for (int i = 0; i < replacements.Count; i++)
             {
                 string slot = replacements[i].Key.name;
-                AnimationClip clip = slot == "Slot_Idle" ? _abilities.Idle :
-                    slot == "Slot_Walk" ? _abilities.Walk : slot == "Slot_Stunned" ? _abilities.Stunned : null;
+                AnimationClip clip = slot == "Slot_Idle" ? _abilities.Idle : slot == "Slot_Walk" ? _abilities.Walk : slot == "Slot_Stunned" ? _abilities.Stunned : null;
                 foreach (BossAttackId id in Enum.GetValues(typeof(BossAttackId)))
                     if (slot == "Slot_" + id) clip = _abilities.Find(id)?.Clip;
-                if (clip) replacements[i] = new KeyValuePair<AnimationClip, AnimationClip>(replacements[i].Key, clip);
-                else Debug.LogWarning("Asigna el clip de " + slot + " en SO_BossAbilities.", this);
+                if (clip)
+                    replacements[i] = new KeyValuePair<AnimationClip, AnimationClip>(replacements[i].Key, clip);
             }
             _overrides.ApplyOverrides(replacements);
             _animator.runtimeAnimatorController = _overrides;
@@ -212,7 +199,6 @@ namespace FinalVFX.Boss
 
         private void TickAttack(float dt)
         {
-            // Consume los cruces de fase incluso cuando un frame supera una fase completa.
             for (int transition = 0; transition < 4 && _attack != null && dt > 0f; transition++)
             {
                 float duration = Phase == ActionPhase.Preparation ? _attack.Preparation :
@@ -316,7 +302,6 @@ namespace FinalVFX.Boss
             Vector3 direction = delta / distance;
             float allowed = distance;
             float radius = Mathf.Max(0.05f, _agent.radius);
-            // El origen elevado evita que el suelo horizontal detenga el barrido.
             Vector3 bottom = from + Vector3.up * (radius + 0.1f);
             Vector3 top = from + Vector3.up * Mathf.Max(radius + 0.1f, _agent.height - radius);
             Physics.SyncTransforms();
@@ -338,7 +323,6 @@ namespace FinalVFX.Boss
 
         private void PlanDive()
         {
-            // Apunta al suelo bajo el jugador; el vector queda fijo desde este instante.
             Vector3 planar = Planar(_player.position - _origin);
             planar = Vector3.ClampMagnitude(planar, _attack.TravelDistance);
             Vector3 aim = new Vector3(_origin.x + planar.x, _lastGround.y, _origin.z + planar.z);
@@ -352,7 +336,6 @@ namespace FinalVFX.Boss
                 NavMesh.SamplePosition(hit.point, out var nav, 0.3f, Filter) &&
                 !NavMesh.Raycast(_lastGround, nav.position, out _, Filter))
                 _end = nav.position;
-            // Un destino inaccesible produce una caída vertical sobre el último suelo válido.
             _forward = (_end - _origin).normalized;
         }
 
@@ -534,11 +517,7 @@ namespace FinalVFX.Boss
             Cancel();
             if (_health && !_health.IsDead && !_health.Stunned) PlayLocomotion();
         }
-        [ContextMenu("Probar ataque seleccionado (Play Mode)")]
-        private void TestAttack()
-        {
-            if (Application.isPlaying && enabled && _combatEnabled && !_health.IsDead && !_health.Stunned) Begin(_testAttack);
-        }
+
         private void OnDisable()
         {
             if (_health) { _health.StunStarted -= OnStun; _health.Died -= OnDeath; }

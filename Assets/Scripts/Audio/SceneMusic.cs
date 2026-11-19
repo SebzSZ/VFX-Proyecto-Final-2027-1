@@ -5,14 +5,12 @@ namespace FinalVFX.Audio
     [RequireComponent(typeof(AudioSource))]
     public sealed class SceneMusic : MonoBehaviour
     {
-        [SerializeField, Min(0.01f)] private float _fadeInSeconds = 3f;
+        [SerializeField] private float _fadeInSeconds;
         private AudioSource _source;
         private float _elapsed, _duration, _from, _to;
         private bool _fading, _entering;
-        public bool Ready => _source && _source.clip &&
-            _source.clip.loadState == AudioDataLoadState.Loaded;
-        public bool Failed => !_source || !_source.clip ||
-            _source.clip.loadState == AudioDataLoadState.Failed;
+        public bool Ready => _source && _source.clip && _source.clip.loadState == AudioDataLoadState.Loaded;
+        public bool Failed => !_source || !_source.clip || _source.clip.loadState == AudioDataLoadState.Failed;
 
         private void Awake()
         {
@@ -32,7 +30,6 @@ namespace FinalVFX.Audio
             StartFade(1, _fadeInSeconds, true);
         }
 
-        // Capture the current gain even if the entrance fade is still running.
         public void FadeOut(float seconds) => StartFade(0, seconds, false);
 
         private void StartFade(float target, float seconds, bool entering)
@@ -50,7 +47,6 @@ namespace FinalVFX.Audio
             if (!_fading) return;
             _elapsed += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(_elapsed / _duration);
-            // Smooth start/end; squaring the entrance curve makes its onset gentler.
             float curve = Mathf.SmoothStep(0, 1, t);
             if (_entering) curve *= curve;
             _source.volume = Mathf.Lerp(_from, _to, curve);

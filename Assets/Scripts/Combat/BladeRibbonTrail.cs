@@ -9,11 +9,11 @@ namespace FinalVFX.Combat
     {
         [SerializeField] private Transform[] _bladeProfile;
         [SerializeField] private Material _trailMaterial;
-        [SerializeField, Min(0.01f)] private float _lifetime = 0.22f;
-        [SerializeField, Range(4, 128)] private int _maxSamples = 64;
-        [SerializeField, Min(0f)] private float _minMovement = 0.005f;
-        [SerializeField, Min(0.1f)] private float _breakDistance = 2f;
-        [SerializeField, Min(0.1f)] private float _fadePower = 1.5f;
+        [SerializeField] private float _lifetime;
+        [SerializeField] private int _maxSamples;
+        [SerializeField] private float _minMovement;
+        [SerializeField] private float _breakDistance;
+        [SerializeField] private float _fadePower;
 
         private sealed class Sample
         {
@@ -36,19 +36,6 @@ namespace FinalVFX.Combat
 
         private void Awake()
         {
-            if (!_trailMaterial || _bladeProfile == null || _bladeProfile.Length < 2)
-            {
-                Debug.LogError("Asigna Trail Material y al menos dos puntos del filo.", this);
-                return;
-            }
-            foreach (Transform point in _bladeProfile)
-            {
-                if (!point || !point.IsChildOf(transform))
-                {
-                    Debug.LogError("Cada punto del perfil debe ser un hijo del arma.", this);
-                    return;
-                }
-            }
             _samples = new Sample[Mathf.Clamp(_maxSamples, 4, 128)];
             for (int i = 0; i < _samples.Length; i++)
                 _samples[i] = new Sample { points = new Vector3[_bladeProfile.Length] };
@@ -85,7 +72,6 @@ namespace FinalVFX.Combat
                 _renderer.enabled = false;
         }
 
-        // Llamado por WeaponUltimateVisual después de evaluar la animación.
         public void Tick(float now)
         {
             if (!_ready)

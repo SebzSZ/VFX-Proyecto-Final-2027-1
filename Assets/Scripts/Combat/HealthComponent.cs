@@ -3,12 +3,11 @@ using UnityEngine;
 
 namespace FinalVFX.Combat
 {
-    [DisallowMultipleComponent]
     [RequireComponent(typeof(InvulnerabilityComponent))]
     public class HealthComponent : MonoBehaviour
     {
-        [SerializeField, Min(0.01f)] private float _maxHealth = 100f;
-        [SerializeField, Min(0f)] private float _damageInvulnerabilityDuration = 0f;
+        [SerializeField] private float _maxHealth;
+        [SerializeField] private float _damageInvulnerabilityDuration;
         private InvulnerabilityComponent _invulnerability;
 
         public float Current { get; private set; }
@@ -45,7 +44,6 @@ namespace FinalVFX.Combat
             Current = Maximum;
         }
 
-        // Conserva el contrato de devolver únicamente la vida descontada.
         public float ReceiveDamage(float amount) => ReceiveDamage(amount, 0f);
         public float ReceiveDamage(float amount, float minimumInvulnerabilityDuration) =>
             ReceiveHit(amount, minimumInvulnerabilityDuration).HealthLost;

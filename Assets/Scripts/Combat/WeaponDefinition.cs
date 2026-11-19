@@ -1,18 +1,16 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace FinalVFX.Combat
 {
-    [CreateAssetMenu(
-        fileName = "SO_Weapon",
-        menuName = "Final VFX/Weapon Definition")]
+    [CreateAssetMenu(fileName = "SO_Weapon", menuName = "Final VFX/Weapon Definition")]
     public sealed class WeaponDefinition : ScriptableObject
     {
         [SerializeField] private string _displayName;
         [SerializeField] private GameObject _equippedPrefab;
 
         [Header("Player stats")]
-        [SerializeField, Min(1f)] private float _maximumHealth = 100f;
-        [SerializeField, Min(1f)] private float _maximumStamina = 100f;
+        [SerializeField] private float _maximumHealth;
+        [SerializeField] private float _maximumStamina;
 
         [Header("Transform relative to WeaponSocket")]
         [SerializeField] private Vector3 _localPosition;
@@ -25,7 +23,7 @@ namespace FinalVFX.Combat
 
         [Header("Combate")]
         [SerializeField] private BasicStep[] _basicSteps = System.Array.Empty<BasicStep>();
-        [SerializeField, Min(0f)] private float _basicRestartDelay = 0.15f;
+        [SerializeField, Min(0f)] private float _basicRestartDelay;
         [SerializeField] private SingleAction _secondary = new SingleAction();
         [SerializeField] private SingleAction _ultimate = new SingleAction();
 
@@ -40,7 +38,7 @@ namespace FinalVFX.Combat
             [Range(0f, 1f)] public float until = 0.5f;
         }
 
-        [Header("Recargas (segundos)")]
+        [Header("Recargas")]
         [SerializeField, Min(0f)] private float _secondaryCooldown = 5f;
         [SerializeField, Min(0f)] private float _ultimateCooldown = 15f;
         public float SecondaryCooldown => _secondaryCooldown;

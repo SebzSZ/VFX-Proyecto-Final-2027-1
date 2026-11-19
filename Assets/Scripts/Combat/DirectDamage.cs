@@ -7,10 +7,9 @@ namespace FinalVFX.Combat
     public class DirectDamage : MonoBehaviour
     {
         [SerializeField] private LayerMask _targetLayers;
-        [SerializeField, Min(0f)] private float _damage = 25f;
-        [SerializeField, Min(0f)] private float _invulnerabilityDuration = 0.5f;
+        [SerializeField] private float _damage;
+        [SerializeField] private float _invulnerabilityDuration;
 
-        // El valor por defecto conserva el daño por contacto de los objetos de prueba.
         [SerializeField] private bool _manualMelee;
         [Tooltip("Para el melee, asigna la raíz del Guardián.")]
         [SerializeField] private Transform _pushOrigin;

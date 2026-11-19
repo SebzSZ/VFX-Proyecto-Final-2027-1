@@ -7,8 +7,8 @@ namespace FinalVFX.Combat
     public class FloorDamage : MonoBehaviour
     {
         [SerializeField] private LayerMask _targetLayers;
-        [SerializeField, Min(0f)] private float _damage = 25f;
-        [SerializeField, Min(0.01f)] private float _interval = 1f;
+        [SerializeField] private float _damage;
+        [SerializeField] private float _interval;
 
         private readonly Dictionary<HealthComponent, float> _nextDamageAt = new Dictionary<HealthComponent, float>();
         private readonly List<HealthComponent> _expiredTargets = new List<HealthComponent>();
@@ -26,8 +26,6 @@ namespace FinalVFX.Combat
 
         private void FixedUpdate()
         {
-            // Conservar la cadencia al salir y volver a entrar, pero no retener
-            // objetivos una vez que su temporizador haya vencido.
             float now = Time.time;
             foreach (var entry in _nextDamageAt)
             {
@@ -43,7 +41,6 @@ namespace FinalVFX.Combat
 
         private void TryDamage(Collider other)
         {
-            // Unity también puede enviar eventos de trigger a scripts deshabilitados.
             if (!isActiveAndEnabled || (_targetLayers.value & (1 << other.gameObject.layer)) == 0)
                 return;
 

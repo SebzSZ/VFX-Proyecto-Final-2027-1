@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace FinalVFX.Core
 {
-    [DisallowMultipleComponent]
     public sealed class WeaponSelectionPresentation : MonoBehaviour
     {
         [Serializable]
@@ -18,33 +17,13 @@ namespace FinalVFX.Core
         [Header("Exactly two entries: left, right")]
         [SerializeField] private SelectionEntry[] _entries;
         [SerializeField] private GameObject _selectionUI;
-        [SerializeField, Min(0.01f)] private float _weaponNameFadeDuration = 0.2f;
-        [SerializeField, Min(0.01f)] private float _weaponFadeDuration = 1f;
-        [SerializeField, Min(0.01f)] private float _weaponAppearDuration = 1.5f;
+        [SerializeField] private float _weaponNameFadeDuration;
+        [SerializeField] private float _weaponFadeDuration;
+        [SerializeField] private float _weaponAppearDuration;
 
         public Vector3 Midpoint => (FocusPoint(0).position + FocusPoint(1).position) * 0.5f;
         public Transform FocusPoint(int index) => _entries[index].Display.FocusPoint;
         public WeaponDefinition Definition(int index) => _entries[index].Display.Definition;
-
-        public bool ValidateSetup()
-        {
-            if (_selectionUI == null || _entries == null || _entries.Length != 2)
-            {
-                Debug.LogError("WeaponSelectionPresentation necesita SelectionUI y dos entradas (izquierda, derecha).", this);
-                return false;
-            }
-            for (int i = 0; i < _entries.Length; i++)
-            {
-                SelectionEntry entry = _entries[i];
-                if (entry == null || entry.Display == null || entry.NameGroup == null ||
-                    entry.Display.Definition == null || entry.Display.Definition.EquippedPrefab == null)
-                {
-                    Debug.LogError($"WeaponSelectionPresentation: revisa exhibicion, nombre, perfil y prefab de la entrada {i}.", this);
-                    return false;
-                }
-            }
-            return true;
-        }
 
         public void Initialize()
         {
@@ -77,7 +56,6 @@ namespace FinalVFX.Core
 
         public void ShowSelection() => _selectionUI.SetActive(true);
 
-        // The flow drives this in LateUpdate, preserving the original frame order.
         public void TickNames(bool selecting, int selectedIndex)
         {
             if (!_selectionUI.activeInHierarchy)
@@ -100,7 +78,6 @@ namespace FinalVFX.Core
         public IEnumerator Disappear()
         {
             yield return AnimateWeapons(false, _weaponFadeDuration);
-            // Preserve the label fade even when weapon disappearance is shorter.
             while (_entries[0].NameGroup.alpha > 0f || _entries[1].NameGroup.alpha > 0f)
                 yield return null;
             _selectionUI.SetActive(false);

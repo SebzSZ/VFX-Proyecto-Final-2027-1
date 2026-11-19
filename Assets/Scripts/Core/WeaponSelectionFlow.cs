@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 
 namespace FinalVFX.Core
 {
-    [DisallowMultipleComponent]
     public sealed class WeaponSelectionFlow : MonoBehaviour
     {
         private enum FlowState
@@ -38,9 +37,9 @@ namespace FinalVFX.Core
         [SerializeField] private CanvasGroup _blackScreen;
         [SerializeField] private GameObject _gameplayHUD;
         [SerializeField] private GameObject _encounterActors;
-        [SerializeField, Min(0.01f)] private float _fadeInDuration = 0.5f;
-        [SerializeField, Min(0f)] private float _beforeThirdPersonDelay = 0.3f;
-        [SerializeField, Min(0.01f)] private float _deathFadeDuration = 0.8f;
+        [SerializeField] private float _fadeInDuration;
+        [SerializeField] private float _beforeThirdPersonDelay;
+        [SerializeField] private float _deathFadeDuration;
 
         private FlowState _state = FlowState.Entering;
         private int _selectedIndex = -1;
@@ -49,12 +48,6 @@ namespace FinalVFX.Core
 
         private void Awake()
         {
-            if (!ValidateSetup())
-            {
-                enabled = false;
-                return;
-            }
-            // Explicit initialization avoids depending on component Awake ordering.
             _input.Initialize();
             _presentation.Initialize();
             _camera.Initialize();
@@ -66,32 +59,12 @@ namespace FinalVFX.Core
             _encounterActors.SetActive(false);
         }
 
-        private bool ValidateSetup()
-        {
-            Object[] required = { _input, _presentation, _camera, _player, _equipment,
-                _invulnerability, _characterController, _startPos, _blackScreen,
-                _gameplayHUD, _encounterActors, _arenaIntro };
-            foreach (Object reference in required)
-            {
-                if (reference != null) continue;
-                Debug.LogError("WeaponSelectionFlow tiene referencias sin asignar.", this);
-                return false;
-            }
-            if (!_equipment.HasSocket)
-            {
-                Debug.LogError("PlayerEquipment necesita un WeaponSocket.", _equipment);
-                return false;
-            }
-            return _input.ValidateSetup() && _presentation.ValidateSetup() && _camera.ValidateSetup() && _arenaIntro.ValidateSetup();
-        }
-
         private void OnEnable()
         {
             if (!_configured) return;
             _input.SelectionRequested += Select;
             _input.ConfirmRequested += ConfirmSelection;
             _camera.VisibilityChanged += _equipment.SetVisible;
-            _camera.Failed += Fail;
             _player.Died += HandleDeath;
         }
 
@@ -124,7 +97,7 @@ namespace FinalVFX.Core
         private void Update()
         {
             if (_state != FlowState.Selecting) return;
-            // Aim before reading navigation, exactly as in the original sequence.
+
             if (_input.CanRead)
                 _camera.AimAtSelection(_presentation.FocusPoint(_selectedIndex));
             _input.Tick();
@@ -230,11 +203,6 @@ namespace FinalVFX.Core
         private void Fail(string message)
         {
             _state = FlowState.Failed;
-
-            Debug.LogError(
-                message +
-                " Revisa cámaras activas, prioridades, canales y blends.",
-                this);
         }
 
         private void OnDisable()
@@ -251,7 +219,6 @@ namespace FinalVFX.Core
                 _camera.SetPlayerVisible(true);
             }
             _camera.VisibilityChanged -= _equipment.SetVisible;
-            _camera.Failed -= Fail;
         }
     }
 }

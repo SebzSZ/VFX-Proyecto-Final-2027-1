@@ -38,10 +38,6 @@ namespace FinalVFX.Menu
                 _signature == null ||
                 _transition == null)
             {
-                Debug.LogError(
-                    "StorySequence: asigna Story Text, Signature y Transition.",
-                    this);
-
                 enabled = false;
                 return;
             }

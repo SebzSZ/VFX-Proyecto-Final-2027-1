@@ -30,9 +30,6 @@ namespace FinalVFX.Menu
 
             if (settings == null)
             {
-                Debug.LogError(
-                    "SettingsPanelUI: falta GameSettings en la escena.",
-                    this);
                 return false;
             }
 
@@ -129,7 +126,6 @@ namespace FinalVFX.Menu
                 ClearStatus();
         }
 
-        // Covers Back/Cancel, resuming, disabling the pause root and scene changes.
         private void OnDisable() => CancelPreview();
 
         private void OnDestroy()

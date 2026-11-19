@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using FinalVFX.Combat;
 using FinalVFX.Player;
 using UnityEngine;
@@ -123,8 +123,6 @@ namespace FinalVFX.Menu
 
         private void LateUpdate()
         {
-            // Mantiene el cursor disponible incluso si otro sistema
-            // actualiza su estado mientras el juego está pausado.
             if (_ownsPause && !_leaving)
             {
                 Cursor.lockState = CursorLockMode.None;
@@ -181,8 +179,6 @@ namespace FinalVFX.Menu
 
         private IEnumerator ResumeRoutine()
         {
-            // Conserva la pausa durante el frame de la interacción.
-            // Evita convertir el clic/Submit de Reanudar en un ataque.
             yield return null;
 
             RestoreGameplay();
@@ -219,22 +215,12 @@ namespace FinalVFX.Menu
             if (!_ownsPause || _resuming || _leaving)
                 return;
 
-            if (string.IsNullOrWhiteSpace(_menuScene) ||
-                !Application.CanStreamedLevelBeLoaded(_menuScene))
-            {
-                Debug.LogError(
-                    $"PauseMenu: agrega '{_menuScene}' a Scene List.",
-                    this);
-                return;
-            }
-
             _leaving = true;
             _uiInputModule.enabled = false;
             _settingsUI.CancelPreview();
             _settingsUI.CloseDropdown();
             Select(null);
 
-            // Bloquea la interfaz durante el fundido.
             _blackScreen.blocksRaycasts = true;
 
             StartCoroutine(ReturnRoutine());
@@ -259,15 +245,11 @@ namespace FinalVFX.Menu
             yield return null;
             _presentation.ResetImmediately();
 
-            // Solo el controlador sobrevive temporalmente a la carga.
-            // La interfaz y la arena se destruyen normalmente.
             DontDestroyOnLoad(gameObject);
 
             yield return SceneManager.LoadSceneAsync(
                 _menuScene, LoadSceneMode.Single);
 
-            // Restaurar después de cargar evita reactivar el combate
-            // mientras todavía se está abandonando la arena.
             _ownsPause = false;
             IsPaused = false;
             Time.timeScale = 1f;

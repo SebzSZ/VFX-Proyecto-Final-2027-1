@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace FinalVFX.Boss
 {
-    // Disco de exclusión: también limita saltos, esquives y desplazamientos forzados.
     public sealed class BossFogBarrier : MonoBehaviour
     {
         private static readonly List<BossFogBarrier> Active = new List<BossFogBarrier>();
@@ -16,7 +15,6 @@ namespace FinalVFX.Boss
         public void Configure(float radius, float height)
         {
             Radius = radius;
-            // Cylinder de Unity: diámetro 1, altura 2.
             transform.localScale = new Vector3(radius * 2f, height * 0.5f, radius * 2f);
         }
 
@@ -33,14 +31,12 @@ namespace FinalVFX.Boss
                 float length = p.magnitude;
                 if (length < r)
                 {
-                    // Durante la expulsión inicial permite salir y moverse tangencialmente.
                     Vector2 normal = length > 0.001f ? p / length : Vector2.up;
                     float inward = Vector2.Dot(d, normal);
                     if (inward < 0f) d -= normal * inward;
                 }
                 else if (d.sqrMagnitude > 0.000001f)
                 {
-                    // Intersección segmento/círculo: bloquea incluso un esquive que cruza todo el diámetro.
                     float b = Vector2.Dot(p, d);
                     float c = p.sqrMagnitude - r * r;
                     float disc = b * b - d.sqrMagnitude * c;

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Splines;
 using UnityEngine.VFX;
@@ -7,7 +7,6 @@ using FinalVFX.Audio;
 
 namespace FinalVFX.Dragon
 {
-    [DisallowMultipleComponent]
     public sealed class ArenaDragonController : MonoBehaviour
     {
         [Header("Referencias")]
@@ -25,20 +24,20 @@ namespace FinalVFX.Dragon
         private SoundEffectPool.Handle _fireSound;
 
         [Header("Vuelo")]
-        [SerializeField, Min(0.1f)] private float moveSpeed = 10f;
-        [SerializeField] private Vector2 flapSeconds = new Vector2(3f, 6f);
-        [SerializeField] private Vector2 glideSeconds = new Vector2(2f, 4f);
+        [SerializeField] private float moveSpeed;
+        [SerializeField] private Vector2 flapSeconds;
+        [SerializeField] private Vector2 glideSeconds;
 
         [SerializeField, Min(0.1f)]
         private float acceleration = 8f;
         private float currentMoveSpeed;
 
         [Header("Ataques")]
-        [SerializeField] private Vector2 attackInterval = new Vector2(7f, 11f);
-        [SerializeField, Range(0f, 0.9f)] private float fireStart = 0.2f;
-        [SerializeField, Range(0.1f, 0.99f)] private float fireEnd = 0.75f;
-        [SerializeField, Min(0.02f)] private float travelSeconds = 0.2f;
-        [SerializeField, Min(1f)] private float attackTimeout = 15f;
+        [SerializeField] private Vector2 attackInterval;
+        [SerializeField] private float fireStart;
+        [SerializeField] private float fireEnd;
+        [SerializeField] private float travelSeconds;
+        [SerializeField] private float attackTimeout;
 
         [Header("Trayectorias curvas")]
         [SerializeField, Range(0.15f, 0.6f)]
@@ -70,17 +69,11 @@ namespace FinalVFX.Dragon
             Attacking
         }
 
-        private static readonly int Flap =
-            Animator.StringToHash("Base Layer.Flap");
+        private static readonly int Flap = Animator.StringToHash("Base Layer.Flap");
+        private static readonly int Glide = Animator.StringToHash("Base Layer.Glide");
+        private static readonly int Breath = Animator.StringToHash("Base Layer.Breath");
 
-        private static readonly int Glide =
-            Animator.StringToHash("Base Layer.Glide");
-
-        private static readonly int Breath =
-            Animator.StringToHash("Base Layer.Breath");
-
-        private readonly List<DragonLavaZone> candidates =
-            new List<DragonLavaZone>();
+        private readonly List<DragonLavaZone> candidates = new List<DragonLavaZone>();
 
         private State state;
         private DragonLavaZone target;
@@ -129,17 +122,12 @@ namespace FinalVFX.Dragon
 
             if (!valid)
             {
-                Debug.LogError(
-                    $"{name}: revisa referencias, estados del Animator " +
-                    "y propiedades BreathSpeed/BreathLifetime.", this);
-
                 enabled = false;
                 return;
             }
 
             animator.applyRootMotion = false;
 
-            // También configura este evento en el Inspector del VFX.
             breath.initialEventName = "Idle";
             breath.Reinit();
             breath.Stop();
@@ -152,10 +140,6 @@ namespace FinalVFX.Dragon
             highFlight.Play();
 
             PlayFlight(false);
-
-            Debug.Log(
-                $"{name}: vuelo inicial iniciado. " +
-                $"Jefe activo: {boss.gameObject.activeInHierarchy}", this);
         }
 
         private void Update()
@@ -165,9 +149,6 @@ namespace FinalVFX.Dragon
 
             if (boss == null)
             {
-                Debug.LogError(
-                    $"{name}: se perdió la referencia al jefe.", this);
-
                 enabled = false;
                 return;
             }
@@ -180,10 +161,6 @@ namespace FinalVFX.Dragon
 
             if (boss.IsDead)
             {
-                Debug.Log(
-                    $"{name}: deteniendo dragón porque el jefe murió. " +
-                    $"Vida: {boss.Current}/{boss.Maximum}", this);
-
                 enabled = false;
                 return;
             }
@@ -204,7 +181,6 @@ namespace FinalVFX.Dragon
             switch (state)
             {
                 case State.HighFlight:
-                    // SplineAnimate controla la posición y orientación.
                     break;
 
                 case State.Descending:
@@ -265,24 +241,18 @@ namespace FinalVFX.Dragon
                  state != State.Attacking))
                 return;
 
-            // Se ejecuta después de que el Animator mueva la boca.
             Vector3 direction =
                 target.ImpactPosition - breathAim.position;
 
             if (direction.sqrMagnitude > 0.0001f)
                 breathAim.rotation = Quaternion.LookRotation(direction);
 
-            // El emisor y sus padres deben tener escala mundial uniforme 1.
-            breath.SetFloat(
-                "BreathSpeed",
-                direction.magnitude / travelSeconds);
+            breath.SetFloat("BreathSpeed", direction.magnitude / travelSeconds);
 
             breath.SetFloat("BreathLifetime", travelSeconds);
         }
 
-        private bool MoveTo(
-    Vector3 destination,
-    Vector3? arrivalForward = null)
+        private bool MoveTo(Vector3 destination, Vector3? arrivalForward = null)
         {
             bool stopAtDestination = arrivalForward.HasValue;
 
@@ -303,7 +273,6 @@ namespace FinalVFX.Dragon
 
             if (stopAtDestination)
             {
-                // Frenar únicamente para colocarse a disparar.
                 wantedSpeed = Mathf.Min(
                     moveSpeed,
                     Mathf.Sqrt(2f * acceleration * remaining));
@@ -318,7 +287,6 @@ namespace FinalVFX.Dragon
                 flightLength,
                 flightDistance + currentMoveSpeed * Time.deltaTime);
 
-            // Evitar una aproximación interminable al final del ataque.
             if (stopAtDestination &&
                 flightLength - flightDistance <= 0.02f)
             {
@@ -376,7 +344,6 @@ namespace FinalVFX.Dragon
 
             if (facing < -0.25f)
             {
-                // Destino detrás: abrir el giro con un punto lateral.
                 float side = Vector3.Dot(transform.right, offset) >= 0f
                     ? 1f
                     : -1f;
@@ -543,7 +510,6 @@ namespace FinalVFX.Dragon
 
             if (candidates.Count == 0)
             {
-                // Reintenta mientras sigue patrullando.
                 nextAttack = Time.time + 1f;
                 return false;
             }
@@ -577,7 +543,6 @@ namespace FinalVFX.Dragon
 
             AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(0);
 
-            // Esperar a terminar la transición hacia Breath.
             if (info.fullPathHash != Breath || animator.IsInTransition(0))
                 return;
 
@@ -595,7 +560,6 @@ namespace FinalVFX.Dragon
             {
                 emissionElapsed += Time.deltaTime;
 
-                // El calentamiento comienza cuando llega el chorro.
                 if (emissionElapsed >= travelSeconds)
                 {
                     zoneIgnited = true;

@@ -3,10 +3,9 @@ using FinalVFX.Combat;
 
 namespace FinalVFX.Dragon
 {
-    [DisallowMultipleComponent]
     public sealed class DragonLavaZone : MonoBehaviour
     {
-        [Header("Contenedor existente: Zone1, Zone2, etc.")]
+        [Header("Contenedor")]
         [SerializeField] private GameObject zoneRoot;
 
         [Header("Puntos del ataque")]
@@ -14,12 +13,12 @@ namespace FinalVFX.Dragon
         [SerializeField] private Transform attackPosition;
 
         [Header("Shader")]
-        [SerializeField] private string amountProperty = "_LavaAmount";
+        [SerializeField] private string amountProperty;
 
         [Header("Duraciones")]
-        [SerializeField, Min(0.05f)] private float appearSeconds = 2f;
-        [SerializeField, Min(0.05f)] private float activeSeconds = 6f;
-        [SerializeField, Min(0.05f)] private float disappearSeconds = 2f;
+        [SerializeField] private float appearSeconds;
+        [SerializeField] private float activeSeconds;
+        [SerializeField] private float disappearSeconds;
 
         private enum State
         {
@@ -49,26 +48,8 @@ namespace FinalVFX.Dragon
 
         private void Awake()
         {
-            if (zoneRoot == null ||
-                impactPoint == null ||
-                attackPosition == null)
-            {
-                Fail("Asigna Zone Root, Impact Point y Attack Position.");
-                return;
-            }
-
-            // El controlador debe permanecer fuera de la zona apagable.
-            if (transform == zoneRoot.transform ||
-                transform.IsChildOf(zoneRoot.transform))
-            {
-                Fail("El controlador debe estar fuera de Zone Root.");
-                return;
-            }
-
-            // Incluye hijos aunque el contenedor esté desactivado.
             surfaces = zoneRoot.GetComponentsInChildren<Renderer>(true);
-            damageVolumes =
-                zoneRoot.GetComponentsInChildren<FloorDamage>(true);
+            damageVolumes = zoneRoot.GetComponentsInChildren<FloorDamage>(true);
 
             zoneRoot.SetActive(false);
             SetDamage(false);
@@ -76,33 +57,9 @@ namespace FinalVFX.Dragon
             amountId = Shader.PropertyToID(amountProperty);
             block = new MaterialPropertyBlock();
 
-            if (surfaces.Length == 0 || damageVolumes.Length == 0)
-            {
-                Fail("La zona necesita superficies y componentes FloorDamage.");
-                return;
-            }
-
-            // Todas las superficies de esta zona deben usar el shader preparado.
             foreach (Renderer surface in surfaces)
             {
                 Material[] materials = surface.sharedMaterials;
-
-                if (materials.Length == 0)
-                {
-                    Fail($"{surface.name} no tiene materiales.");
-                    return;
-                }
-
-                foreach (Material material in materials)
-                {
-                    if (material == null || !material.HasProperty(amountId))
-                    {
-                        Fail(
-                            $"{surface.name}: su material necesita " +
-                            $"la propiedad {amountProperty}.");
-                        return;
-                    }
-                }
             }
 
             ready = true;
@@ -114,7 +71,6 @@ namespace FinalVFX.Dragon
             if (!IsAvailable)
                 return false;
 
-            // Preparar antes de activar evita un destello de lava completa.
             SetDamage(false);
             SetAmount(0f);
 
@@ -133,7 +89,6 @@ namespace FinalVFX.Dragon
             if (state == State.Hidden)
                 return;
 
-            // Si otro sistema apaga el contenedor, cancelar este ciclo.
             if (zoneRoot == null || !zoneRoot.activeInHierarchy)
             {
                 ResetZone();
@@ -146,8 +101,7 @@ namespace FinalVFX.Dragon
             {
                 case State.Appearing:
                     {
-                        float t = Mathf.Clamp01(
-                            elapsed / Mathf.Max(0.05f, appearSeconds));
+                        float t = Mathf.Clamp01(elapsed / Mathf.Max(0.05f, appearSeconds));
 
                         SetAmount(Mathf.SmoothStep(0f, 1f, t));
 
@@ -172,8 +126,7 @@ namespace FinalVFX.Dragon
 
                 case State.Disappearing:
                     {
-                        float t = Mathf.Clamp01(
-                            elapsed / Mathf.Max(0.05f, disappearSeconds));
+                        float t = Mathf.Clamp01(elapsed / Mathf.Max(0.05f, disappearSeconds));
 
                         SetAmount(1f - Mathf.SmoothStep(0f, 1f, t));
 
@@ -227,12 +180,6 @@ namespace FinalVFX.Dragon
             {
                 zoneRoot.SetActive(false);
             }
-        }
-
-        private void Fail(string message)
-        {
-            Debug.LogError($"{name}: {message}", this);
-            enabled = false;
         }
 
         private void OnDisable()

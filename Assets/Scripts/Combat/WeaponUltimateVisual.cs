@@ -4,7 +4,6 @@ using UnityEngine;
 namespace FinalVFX.Combat
 {
     [DefaultExecutionOrder(200)]
-    [DisallowMultipleComponent]
     [RequireComponent(typeof(BladeRibbonTrail))]
     public sealed class WeaponUltimateVisual : MonoBehaviour
     {
@@ -36,8 +35,6 @@ namespace FinalVFX.Combat
             _owner = GetComponentInParent<PlayerUltimateEffects>();
             _health = GetComponentInParent<HealthComponent>();
             if (_health) { _health.Died += ResetVisual; _health.Restored += ResetVisual; }
-            if (!_owner)
-                Debug.LogWarning("El arma debe estar equipada bajo el jugador con PlayerUltimateEffects.", this);
 
             if (_bladeMaterials == null)
                 return;
@@ -46,8 +43,6 @@ namespace FinalVFX.Combat
                 if (!ValidSlot(slot))
                     continue;
                 Material material = slot.renderer.sharedMaterials[slot.materialIndex];
-                if (!material || !material.HasProperty(UltimateWeight))
-                    Debug.LogWarning("Asigna SG_WeaponUltimate al material de hoja seleccionado.", slot.renderer);
             }
         }
 

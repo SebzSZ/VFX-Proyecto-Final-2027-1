@@ -8,10 +8,10 @@ namespace FinalVFX.Boss
     public class BossWanderMotor : MonoBehaviour
     {
         [SerializeField] private Transform _arenaCenter;
-        [SerializeField, Min(0.1f)] private float _arenaRadius = 12f;
-        [SerializeField, Min(0.1f)] private float _sampleDistance = 1f;
-        [SerializeField, Min(0.1f)] private float _retryDelay = 1f;
-        [SerializeField, Min(1f)] private float _destinationTimeout = 10f;
+        [SerializeField, Min(0.1f)] private float _arenaRadius;
+        [SerializeField, Min(0.1f)] private float _sampleDistance;
+        [SerializeField, Min(0.1f)] private float _retryDelay;
+        [SerializeField, Min(1f)] private float _destinationTimeout;
 
         [Header("Persecución")]
         [SerializeField, Min(0.05f)]

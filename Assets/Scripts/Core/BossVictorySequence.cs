@@ -18,8 +18,8 @@ namespace FinalVFX.Core
         [SerializeField] private CanvasGroup _blackScreen;
 
         [Header("Transition")]
-        [SerializeField, Min(0f)] private float _fadeSeconds = 0.6f;
-        [SerializeField, Min(0f)] private float _blackHoldSeconds = 0.4f;
+        [SerializeField] private float _fadeSeconds;
+        [SerializeField] private float _blackHoldSeconds;
         [SerializeField] private string _endScene = "SCN_End";
 
         private bool _ending;
@@ -30,9 +30,6 @@ namespace FinalVFX.Core
         {
             if (!_bossHealth || !_music || !_blackScreen)
             {
-                Debug.LogError(
-                    "BossVictorySequence: asigna Boss Health, Music y Black Screen.",
-                    this);
                 enabled = false;
                 return;
             }
@@ -60,16 +57,10 @@ namespace FinalVFX.Core
                 return;
 
             if (!Application.CanStreamedLevelBeLoaded(_endScene))
-            {
-                Debug.LogError(
-                    $"Agrega '{_endScene}' a la Scene List del build.",
-                    this);
                 return;
-            }
 
             _ending = true;
 
-            // Desactivar PauseMenu primero: su OnDisable puede restaurar tiempo.
             if (_pauseMenu)
                 _pauseMenu.enabled = false;
 
@@ -86,7 +77,6 @@ namespace FinalVFX.Core
 
             _blackScreen.blocksRaycasts = true;
 
-            // Este objeto debe estar en la raíz y contener solo este script.
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += OnSceneLoaded;
 
@@ -106,13 +96,11 @@ namespace FinalVFX.Core
 
             _blackScreen.alpha = 1f;
 
-            // Garantiza un frame negro incluso con duración de fundido cero.
             yield return null;
 
             if (_blackHoldSeconds > 0f)
                 yield return new WaitForSecondsRealtime(_blackHoldSeconds);
 
-            // La arena permanece congelada durante toda la carga.
             yield return SceneManager.LoadSceneAsync(
                 _endScene, LoadSceneMode.Single);
         }

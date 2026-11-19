@@ -17,31 +17,29 @@ namespace FinalVFX.Boss
     public class BossAttackRule
     {
         public BossAttackId Id;
-        [Min(0f)] public float NearWeight = 1f;
-        [Min(0f)] public float FarWeight = 1f;
-        [Min(0f)] public float Cooldown = 5f;
-        [Min(0f)] public float MeleeWeight = 1f;
+        [Min(0f)] public float NearWeight;
+        [Min(0f)] public float FarWeight;
+        [Min(0f)] public float Cooldown;
+        [Min(0f)] public float MeleeWeight;
     }
 
-    [CreateAssetMenu(
-        fileName = "BossAISettings",
-        menuName = "Final VFX/Boss/AI Settings")]
+    [CreateAssetMenu(fileName = "BossAISettings", menuName = "Final VFX/Boss/AI Settings")]
     public class BossAISettings : ScriptableObject
     {
         [Header("Detección y combate cercano")]
-        [Min(0.1f)] public float VisionDistance = 18f;
-        [Min(0.1f)] public float MeleeDistance = 2.5f;
-        [Min(0.1f)] public float ChaseStoppingDistance = 1.8f;
+        [Min(0.1f)] public float VisionDistance;
+        [Min(0.1f)] public float MeleeDistance;
+        [Min(0.1f)] public float ChaseStoppingDistance;
 
-        [Header("Distancia horizontal al jugador")]
-        [Min(0f)] public float NearDistance = 4f;
-        [Min(0.1f)] public float FarDistance = 12f;
+        [Header("Distancia al jugador")]
+        [Min(0f)] public float NearDistance;
+        [Min(0.1f)] public float FarDistance;
 
         [Header("Decisiones")]
-        [Min(0.1f)] public float DecisionInterval = 3f;
+        [Min(0.1f)] public float DecisionInterval;
 
         [Tooltip("Multiplica el peso del último ataque seleccionado.")]
-        [Range(0f, 1f)] public float RepeatMultiplier = 0.25f;
+        [Range(0f, 1f)] public float RepeatMultiplier;
 
         public BossAttackRule[] Attacks =
         {

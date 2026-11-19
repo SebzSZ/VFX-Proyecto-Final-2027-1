@@ -39,14 +39,6 @@ namespace FinalVFX.Menu
                 _mixer.GetFloat("PauseVolume", out _) &&
                 _mixer.GetFloat("PauseCutoff", out _);
 
-            if (!_audioReady)
-            {
-                Debug.LogError(
-                    "PausePresentation: asigna MIX_Game y expón " +
-                    "PauseVolume y PauseCutoff.",
-                    this);
-            }
-
             _initialized = true;
             Apply();
         }
@@ -84,7 +76,6 @@ namespace FinalVFX.Menu
                 "PauseVolume",
                 Mathf.Lerp(0f, _pausedVolumeDb, blend));
 
-            // Interpolación logarítmica para un cambio de frecuencia suave.
             float cutoff = Mathf.Exp(
                 Mathf.Lerp(
                     Mathf.Log(22000f),

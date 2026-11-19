@@ -3,13 +3,12 @@ using UnityEngine;
 
 namespace FinalVFX.Combat
 {
-    [DisallowMultipleComponent]
     [RequireComponent(typeof(HealthComponent))]
     public class HealingConsumable : MonoBehaviour
     {
-        [SerializeField, Min(1)] private int _maximumUses = 3;
-        [SerializeField, Min(0.01f)] private float _healAmount = 30f;
-        [SerializeField, Min(0f)] private float _cooldown = 0.75f;
+        [SerializeField] private int _maximumUses;
+        [SerializeField] private float _healAmount;
+        [SerializeField] private float _cooldown;
 
         private HealthComponent _health;
         private float _readyAt;

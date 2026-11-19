@@ -4,13 +4,12 @@ using UnityEngine.InputSystem;
 
 namespace FinalVFX.Core
 {
-    [DisallowMultipleComponent]
     public sealed class WeaponSelectionInput : MonoBehaviour
     {
         [SerializeField] private InputActionReference _mouseNavigateReference;
         [SerializeField] private InputActionReference _navigateReference;
         [SerializeField] private InputActionReference _confirmReference;
-        [SerializeField, Min(1f)] private float _mouseSelectionDistance = 30f;
+        [SerializeField] private float _mouseSelectionDistance;
 
         private InputAction _navigate;
         private InputAction _confirm;
@@ -24,25 +23,6 @@ namespace FinalVFX.Core
         public bool CanRead => Application.isFocused && Time.timeScale > 0f;
         public event Action<int> SelectionRequested;
         public event Action ConfirmRequested;
-
-        public bool ValidateSetup()
-        {
-            if (_navigateReference != null &&
-                _navigateReference.action != null &&
-                _confirmReference != null &&
-                _confirmReference.action != null &&
-                _mouseNavigateReference != null &&
-                _mouseNavigateReference.action != null)
-            {
-                return true;
-            }
-
-            Debug.LogError(
-                "WeaponSelectionInput necesita Navigate, Confirm y MouseNavigate.",
-                this);
-
-            return false;
-        }
 
         public void Initialize()
         {
@@ -82,7 +62,6 @@ namespace FinalVFX.Core
 
             float horizontal = _navigate.ReadValue<Vector2>().x;
 
-            // Exigir reposo al entrar o recuperar foco.
             if (!_inputArmed)
             {
                 if (Mathf.Abs(horizontal) < 0.25f &&

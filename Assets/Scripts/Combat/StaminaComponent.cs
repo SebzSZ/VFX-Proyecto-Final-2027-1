@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace FinalVFX.Combat
 {
-    [DisallowMultipleComponent]
     public class StaminaComponent : MonoBehaviour
     {
         [SerializeField, Min(0.01f)] private float _maxStamina = 100f;
@@ -25,7 +24,6 @@ namespace FinalVFX.Combat
 
         private void LateUpdate()
         {
-            // No regenera si se usó stamina en este frame o si todavía está en el delay
             if (_lastActiveFrame == Time.frameCount || Time.time < _regenerationAllowedAt || Current >= Maximum)
                 return;
 

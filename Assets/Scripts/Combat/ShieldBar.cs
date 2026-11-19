@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 namespace FinalVFX.UI
 {
-    [DisallowMultipleComponent]
     [RequireComponent(typeof(Image))]
     public sealed class ShieldBar : MonoBehaviour
     {
@@ -16,7 +15,6 @@ namespace FinalVFX.UI
             _fill = GetComponent<Image>();
             if (!_health)
             {
-                Debug.LogError("Asigna la salud del jugador a Shield Bar.", this);
                 enabled = false;
                 return;
             }

@@ -6,7 +6,6 @@ using Unity.Profiling;
 
 namespace FinalVFX.Boss
 {
-    // Pool de capacidad fija. La creación solo se realiza durante la precarga.
     public sealed class BossHazardPool : MonoBehaviour
     {
         private BossFirePillar _prefab;
@@ -35,7 +34,6 @@ namespace FinalVFX.Boss
         {
             maximum = Mathf.Max(1, maximum);
             if (data == null) return 1;
-            // Una oleada extra cubre el orden de Update en el frame de devolución.
             double lifetime = Mathf.Max(0f, data.PillarWarning) + Mathf.Max(0f, data.PillarLifetime);
             double interval = Mathf.Max(0.05f, data.WaveInterval);
             double waves = System.Math.Ceiling(lifetime / interval) + 1d;
@@ -61,7 +59,7 @@ namespace FinalVFX.Boss
             _fog = Instantiate(fogPrefab, transform);
             _fog.name = "Fog_Persistent";
             _fog.gameObject.SetActive(true);
-            _fog.enabled = false; // Solo el componente barrera; el objeto sigue disponible.
+            _fog.enabled = false;
             _fogVisual = _fog.GetComponent<ArenaIntroFog>();
             if (!_fogVisual) _fogVisual = _fog.gameObject.AddComponent<ArenaIntroFog>();
             _fogVisual.SetOpacity(0f);
@@ -78,7 +76,6 @@ namespace FinalVFX.Boss
                     int count = Mathf.Min(_perFrame, Capacity - _created);
                     for (int i = 0; i < count; i++)
                     {
-                        // El padre inactivo evita OnEnable/Play mientras se prepara el objeto.
                         var pillar = Instantiate(_prefab, _staging);
                         pillar.PrepareForPool(this, _prewarmData);
                         pillar.transform.SetParent(transform, false);
@@ -142,7 +139,7 @@ namespace FinalVFX.Boss
 
         private void FadeTo(float target, float seconds)
         {
-            if (_targetOpacity == target) return; // Cancel/Finish no reinician un fundido en curso.
+            if (_targetOpacity == target) return;
             _targetOpacity = target;
             _fromOpacity = _opacity;
             _fadeTime = 0f;
@@ -174,11 +171,5 @@ namespace FinalVFX.Boss
         }
 
         private void OnDisable() => ClearHazards(true);
-
-        [ContextMenu("Mostrar estadísticas del pool")]
-        private void PrintStats()
-        {
-            Debug.Log($"[BossPool] Ready={Ready} | creados={_created}/{Capacity} | activos={ActiveCount} | libres={AvailableCount} | pico={_peakActive} | omitidos por capacidad={_skipped} | opacidad={_opacity:F2}", this);
-        }
     }
 }

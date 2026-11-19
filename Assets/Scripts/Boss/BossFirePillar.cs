@@ -58,7 +58,6 @@ namespace FinalVFX.Boss
 
         public void Initialize(BossAbility data, HealthComponent target, CharacterController body)
         {
-            // Reiniciar todos los valores transitorios antes de reactivar el objeto.
             _data = data;
             _target = target;
             _body = body;
@@ -120,8 +119,6 @@ namespace FinalVFX.Boss
                 _ignited = true;
                 _warning.gameObject.SetActive(false);
                 _fire.gameObject.SetActive(true);
-                // Reinit limpia partículas y el tiempo de simulación de la utilización anterior.
-                // Reinit envía el evento inicial del VFX (OnPlay en este prefab).
                 _fire.Reinit();
                 if (_body) _previousCenter = _body.bounds.center;
             }

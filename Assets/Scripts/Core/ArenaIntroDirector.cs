@@ -13,7 +13,6 @@ using UnityEngine.Rendering.Universal;
 
 namespace FinalVFX.Core
 {
-    [DisallowMultipleComponent]
     public sealed class ArenaIntroDirector : MonoBehaviour
     {
         [Serializable]
@@ -84,17 +83,8 @@ namespace FinalVFX.Core
                 _gameplayHUD, _bossHUD, _blackScreen, _brain, _introCamera,
                 _gameplayCamera, _bossLockCamera, _heavyFog, _skipHint
             };
-            foreach (var item in required)
-                if (item == null) { Debug.LogError("ArenaIntroDirector: falta una referencia.", this); return false; }
-            if (_shots == null || _shots.Length != 4 ||
-                Array.Exists(_shots, s => s == null || s.pose == null || s.seconds <= 0) ||
-                _introCamera == _gameplayCamera || _introCamera == _bossLockCamera ||
-                string.IsNullOrWhiteSpace(_seenKey))
-            { Debug.LogError("ArenaIntroDirector: revisa los cuatro planos, cámaras y Seen Key.", this); return false; }
             float total = 0;
             foreach (var shot in _shots) total += shot.seconds;
-            if (!_music.Configured || Mathf.Abs(total - 20f) > 0.001f)
-            { Debug.LogError("Asigna ArenaMusic y configura cuatro planos que sumen 20 s.", this); return false; }
             return true;
         }
 
@@ -107,7 +97,6 @@ namespace FinalVFX.Core
             if (_skipHint) _skipHint.SetActive(false);
         }
 
-        // Called synchronously after WeaponSelectionFlow activates EncounterActors.
         public void Arm()
         {
             if (!ValidateSetup()) return;
@@ -214,7 +203,6 @@ namespace FinalVFX.Core
                 _loadingIndicator.SetVisible(false);
                 _music.StopAll();
                 _running = false;
-                Debug.LogError("Cámara de intro no disponible. Reinicia Play tras revisar referencias.", this);
                 yield break;
             }
             _music.CommitIntro(requestedBoundary);
@@ -253,7 +241,6 @@ namespace FinalVFX.Core
                     _currentShot = shot;
                     activeIndex = index;
                 }
-                // Every slot includes its own fade-in and fade-out; no accumulated waits.
                 float local = (float)(elapsed - slotStart);
                 float fade = Mathf.Min(_fadeSeconds, shot.seconds / 2);
                 float visible = Mathf.Min(Mathf.Clamp01(local / fade),
@@ -278,7 +265,6 @@ namespace FinalVFX.Core
             {
                 _loadingIndicator.SetVisible(false);
                 _music.StopAll();
-                Debug.LogError("No se recuperó CM_PlayerCamera. Combate bloqueado. Revisa canales/prioridades y reinicia Play.", this);
                 _running = false;
                 yield break;
             }
@@ -330,7 +316,6 @@ namespace FinalVFX.Core
                 elapsed += Time.deltaTime;
                 if (elapsed >= _cameraTimeout)
                 {
-                    Debug.LogError("ArenaIntroDirector: no se activó " + target.name, this);
                     yield break;
                 }
                 yield return null;
@@ -406,13 +391,6 @@ namespace FinalVFX.Core
             _ownsBlends = false;
         }
 
-        [ContextMenu("Forget intro seen (testing)")]
-        private void ForgetSeen()
-        {
-            PlayerPrefs.DeleteKey(_seenKey);
-            PlayerPrefs.Save();
-        }
-
         private void OnDisable()
         {
             StopAllCoroutines();
@@ -426,7 +404,6 @@ namespace FinalVFX.Core
             if (_skipHint) _skipHint.SetActive(false);
             if (_playerProtection) _playerProtection.RemoveWindow(this);
             if (_bossProtection) _bossProtection.RemoveWindow(this);
-            // Keep this director enabled until the scene reloads.
         }
     }
 }

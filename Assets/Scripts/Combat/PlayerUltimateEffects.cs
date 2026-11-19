@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace FinalVFX.Player
 {
-    [DisallowMultipleComponent]
     [RequireComponent(typeof(PlayerCombat), typeof(PlayerEquipment), typeof(HealthComponent))]
     [RequireComponent(typeof(PlayerHitVolumes))]
     public sealed class PlayerUltimateEffects : MonoBehaviour
@@ -67,7 +66,6 @@ namespace FinalVFX.Player
             if (!isActiveAndEnabled || _health.IsDead || !weapon || weapon != _equipment.EquippedWeapon)
                 return;
 
-            // Solo existe un efecto activo, incluso si se invoca el evento externamente.
             FinishEffect(true);
             _activeWeapon = weapon;
             _endsAt = Time.time + Mathf.Max(0.1f, weapon.UltimateEffect.duration);
@@ -76,8 +74,6 @@ namespace FinalVFX.Player
             {
                 if (_scytheAura)
                     _scytheAura.Play(true);
-                else
-                    Debug.LogWarning("Asigna Scythe Aura para visualizar la ultimate.", this);
             }
         }
 
@@ -96,7 +92,6 @@ namespace FinalVFX.Player
                 return;
 
             var settings = _activeWeapon.UltimateEffect;
-            // Un pulso como máximo por frame. Los intervalos perdidos no se acumulan.
             _nextPulse = Time.time + Mathf.Max(0.05f, settings.auraInterval);
             Vector3 center = transform.position + Vector3.up * settings.auraCenterHeight;
             _pulseTargets.Clear();

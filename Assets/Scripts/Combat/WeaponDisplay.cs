@@ -57,26 +57,12 @@ namespace FinalVFX.Combat
                 _surfaceColors[i] = new Color[materials.Length];
                 for (int m = 0; m < materials.Length; m++, surfaceIndex++)
                 {
-                    // El material Dissolve de cada slot conserva el color original del arma.
                     Material surface = _dissolveMaterials != null &&
                         surfaceIndex < _dissolveMaterials.Length &&
                         _dissolveMaterials[surfaceIndex] != null
                         ? _dissolveMaterials[surfaceIndex] : materials[m];
                     _surfaceColors[i][m] = surface != null && surface.HasProperty(BaseColorId)
                         ? surface.GetColor(BaseColorId) : Color.white;
-                }
-
-                foreach (Material material in materials)
-                {
-                    if (material == null ||
-                        !material.HasProperty(SelectionId) ||
-                        !material.HasProperty(VisibilityId))
-                    {
-                        Debug.LogWarning(
-                            "El material de exhibición debe exponer " +
-                            "_Selection y _Visibility.",
-                            target);
-                    }
                 }
             }
 

@@ -21,7 +21,6 @@ namespace FinalVFX.UI
         {
             if (!_combat || !_cover || !_cover.sprite || !_timeLabel)
             {
-                Debug.LogError("Asigna PlayerCombat, la imagen con sprite y el texto del tiempo.", this);
                 enabled = false;
                 return;
             }

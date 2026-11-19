@@ -124,7 +124,6 @@ namespace FinalVFX.Menu
             SavePreferences();
         }
 
-        // Preview changes runtime state only. Public properties remain committed values.
         public void Preview(int resolutionIndex, bool fullscreen, bool vSync,
             float master, float music, float sfx)
         {
@@ -146,7 +145,6 @@ namespace FinalVFX.Menu
         {
             QualitySettings.vSyncCount = vSync ? 1 : 0;
 
-            // Audio slider changes must not repeatedly request a display-mode change.
             if (!_runtimeInitialized || resolution != _runtimeResolution ||
                 fullscreen != _runtimeFullscreen)
             {
@@ -164,22 +162,9 @@ namespace FinalVFX.Menu
 
         private void SetMixerVolume(string parameter, float value)
         {
-            if (_mixer == null)
-            {
-                Debug.LogError("GameSettings: asigna el Audio Mixer.", this);
-                return;
-            }
-
             float decibels = value <= 0.0001f
                 ? -80f
                 : 20f * Mathf.Log10(value);
-
-            if (!_mixer.SetFloat(parameter, decibels))
-            {
-                Debug.LogError(
-                    $"GameSettings: falta exponer '{parameter}' en el mixer.",
-                    this);
-            }
         }
 
         private void SavePreferences()

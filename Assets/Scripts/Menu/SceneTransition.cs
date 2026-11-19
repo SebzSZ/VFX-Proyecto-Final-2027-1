@@ -39,7 +39,6 @@ namespace FinalVFX.Menu
                     yield return null;
                 if (!_music.Ready)
                 {
-                    Debug.LogError("SceneTransition: no se pudo cargar la música.", this);
                     _music = null;
                 }
                 else _music.Begin();
@@ -58,15 +57,6 @@ namespace FinalVFX.Menu
         {
             if (IsBusy)
                 return;
-
-            if (string.IsNullOrWhiteSpace(sceneName) ||
-                !Application.CanStreamedLevelBeLoaded(sceneName))
-            {
-                Debug.LogError(
-                    $"SceneTransition: agrega '{sceneName}' a Scene List.",
-                    this);
-                return;
-            }
 
             SetBusy(true);
             StartCoroutine(LoadRoutine(sceneName));

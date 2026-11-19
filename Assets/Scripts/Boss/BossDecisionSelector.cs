@@ -8,17 +8,10 @@ namespace FinalVFX.Boss
     {
         private readonly BossAISettings _settings;
         private readonly System.Random _random;
-
-        private readonly Dictionary<BossAttackId, float> _readyAt =
-            new Dictionary<BossAttackId, float>();
-
-        private readonly List<BossAttackRule> _candidates =
-            new List<BossAttackRule>();
-
+        private readonly Dictionary<BossAttackId, float> _readyAt = new Dictionary<BossAttackId, float>();
+        private readonly List<BossAttackRule> _candidates = new List<BossAttackRule>();
         private readonly List<float> _weights = new List<float>();
-        private readonly HashSet<BossAttackId> _seen =
-            new HashSet<BossAttackId>();
-
+        private readonly HashSet<BossAttackId> _seen = new HashSet<BossAttackId>();
         private BossAttackId? _lastAttack;
 
         public BossDecisionSelector(BossAISettings settings, int seed)

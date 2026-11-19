@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace FinalVFX.Core
 {
-    [DisallowMultipleComponent]
     public sealed class WeaponSelectionCamera : MonoBehaviour
     {
         [SerializeField] private PlayerCameraController _cameraController;
@@ -23,17 +22,6 @@ namespace FinalVFX.Core
         [SerializeField, Min(1f)] private float _cameraTimeout = 15f;
 
         public event Action<bool> VisibilityChanged;
-        public event Action<string> Failed;
-
-        public bool ValidateSetup()
-        {
-            if (_cameraController != null && _brain != null && _outputCamera != null &&
-                _selectionCamera != null && _gameplayCamera != null &&
-                _selectionCamera != _gameplayCamera && _firstPersonPose != null && _headPoint != null)
-                return true;
-            Debug.LogError("WeaponSelectionCamera: revisa controlador, Brain, camaras distintas, pose inicial y cabeza.", this);
-            return false;
-        }
 
         public void Initialize()
         {
@@ -99,7 +87,6 @@ namespace FinalVFX.Core
         {
             _gameplayCamera.Priority = 200;
 
-            // Permitir que el Brain evalúe el cambio de prioridad.
             yield return null;
 
             float elapsed = 0f;
@@ -127,7 +114,6 @@ namespace FinalVFX.Core
 
                 if (elapsed > _cameraTimeout)
                 {
-                    Fail("No terminó la transición a tercera persona.");
                     yield break;
                 }
 
@@ -149,7 +135,6 @@ namespace FinalVFX.Core
 
                 if (elapsed > _cameraTimeout)
                 {
-                    Fail("No se pudo activar la cámara de selección.");
                     yield break;
                 }
 
@@ -170,7 +155,5 @@ namespace FinalVFX.Core
 
             VisibilityChanged?.Invoke(visible);
         }
-
-        private void Fail(string message) => Failed?.Invoke(message);
     }
 }

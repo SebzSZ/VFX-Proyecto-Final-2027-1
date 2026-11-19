@@ -1,11 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
 namespace FinalVFX.Audio
 {
     [DefaultExecutionOrder(-100)]
-    [DisallowMultipleComponent]
     public sealed class SoundEffectPool : MonoBehaviour
     {
         private static SoundEffectPool _instance;
@@ -32,7 +31,6 @@ namespace FinalVFX.Audio
             public bool paused;
         }
 
-        // A handle identifies a playback, not a reusable AudioSource.
         public readonly struct Handle
         {
             private readonly SoundEffectPool _owner;
@@ -106,7 +104,6 @@ namespace FinalVFX.Audio
                     else voice.source.UnPause();
                     voice.paused = paused;
                 }
-                // Paused sources must not be returned to the pool.
                 if (!paused && !AudioListener.pause && !voice.source.isPlaying)
                     Release(voice);
             }

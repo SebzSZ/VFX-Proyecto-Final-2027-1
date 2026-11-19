@@ -4,7 +4,6 @@ namespace FinalVFX.Combat
 {
     public static class CombatArea
     {
-        // Consulta del volumen propio del aura de ultimate.
         public static Collider[] QueryCylinder(Vector3 center, float radius, float height, LayerMask layers)
         {
             return Physics.OverlapBox(center, new Vector3(radius, height * 0.5f, radius),

@@ -2,7 +2,7 @@
 
 public class RotarSkybox : MonoBehaviour
 {
-    [SerializeField] private float _speed = 0.5f;
+    [SerializeField] private float _speed;
 
     private Material _skybox;
     private float _rotation;
