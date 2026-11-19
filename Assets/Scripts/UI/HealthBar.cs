@@ -15,12 +15,11 @@ namespace FinalVFX.UI
         private void Awake()
         {
             _slider = GetComponent<Slider>();
-            _slider.minValue = 0f;
-            _slider.maxValue = 1f;
-            _slider.wholeNumbers = false;
-            _slider.interactable = false;
-            if (_valueLabel == null)
-                _valueLabel = ResourceBarValue.Create(transform);
+            if (_health == null || _valueLabel == null)
+            {
+                Debug.LogError($"{name}: assign Health and Value Label in the Inspector.", this);
+                enabled = false;
+            }
         }
 
         private void Start() => Refresh();
@@ -48,6 +47,7 @@ namespace FinalVFX.UI
 
         private void OnDisable()
         {
+            if (_health == null) return;
             _health.Changed -= HandleResourceChanged;
             _health.ShieldChanged -= HandleResourceChanged;
         }

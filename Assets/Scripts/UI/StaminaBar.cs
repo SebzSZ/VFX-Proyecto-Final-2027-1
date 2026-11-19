@@ -16,11 +16,11 @@ namespace FinalVFX
         private void Awake()
         {
             _slider = GetComponent<Slider>();
-            _slider.minValue = 0f;
-            _slider.maxValue = 1f;
-            _slider.wholeNumbers = false;
-            _slider.interactable = false;
-            if (_valueLabel == null) _valueLabel = UI.ResourceBarValue.Create(transform);
+            if (_stamina == null || _valueLabel == null)
+            {
+                Debug.LogError($"{name}: assign Stamina and Value Label in the Inspector.", this);
+                enabled = false;
+            }
         }
 
         private void OnEnable()
@@ -37,6 +37,7 @@ namespace FinalVFX
 
         private void OnDisable()
         {
+            if (_stamina == null) return;
             _stamina.Changed -= Refresh;
         }
 

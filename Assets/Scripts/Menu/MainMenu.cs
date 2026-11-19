@@ -1,13 +1,14 @@
 ﻿using FinalVFX.Core;
 using FinalVFX.Menu;
-using System.Collections.Generic;
-using TMPro;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace FinalVFX.Menu
 {
+    [DefaultExecutionOrder(-200)]
     public sealed class MainMenu : MonoBehaviour
     {
         [Header("Panels")]
@@ -19,18 +20,16 @@ namespace FinalVFX.Menu
         [SerializeField] private Button _settingsButton;
         [SerializeField] private SceneTransition _transition;
         [SerializeField] private string _storyScene = "SCN_Story";
+        [SerializeField] private InputActionReference _cancelReference;
+        private InputAction _cancelAction;
 
         [Header("Settings")]
-        [SerializeField] private TMP_Dropdown _resolutionDropdown;
-        [SerializeField] private Toggle _fullscreenToggle;
-        [SerializeField] private Toggle _vSyncToggle;
-        [SerializeField] private Slider _masterSlider;
-        [SerializeField] private Slider _musicSlider;
-        [SerializeField] private Slider _sfxSlider;
-        [SerializeField] private TMP_Text _statusText;
+        [SerializeField] private SettingsPanelUI _settingsUI;
 
         private void Awake()
         {
+            _cancelAction = _cancelReference.action.Clone();
+
             Time.timeScale = 1f;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
@@ -39,8 +38,11 @@ namespace FinalVFX.Menu
             _settingsPanel.SetActive(false);
         }
 
-        private void Start()
+        private IEnumerator Start()
         {
+            while (_transition.IsBusy)
+                yield return null;
+
             Select(_playButton.gameObject);
         }
 
@@ -56,69 +58,27 @@ namespace FinalVFX.Menu
 
         public void OpenSettings()
         {
-            if (_transition.IsBusy)
+            if (_transition.IsBusy || !_settingsUI.Refresh())
                 return;
-
-            var settings = GameSettings.Instance;
-
-            if (settings == null)
-            {
-                Debug.LogError("MainMenu: falta GameSettings en la escena.", this);
-                return;
-            }
-
-            var options = new List<string>();
-            int selectedIndex = 0;
-
-            for (int i = 0; i < settings.Resolutions.Count; i++)
-            {
-                var size = settings.Resolutions[i];
-                options.Add($"{size.x} × {size.y}");
-
-                if (size == settings.Resolution)
-                    selectedIndex = i;
-            }
-
-            _resolutionDropdown.ClearOptions();
-            _resolutionDropdown.AddOptions(options);
-            _resolutionDropdown.SetValueWithoutNotify(selectedIndex);
-            _resolutionDropdown.RefreshShownValue();
-
-            _fullscreenToggle.SetIsOnWithoutNotify(settings.Fullscreen);
-            _vSyncToggle.SetIsOnWithoutNotify(settings.VSync);
-            _masterSlider.SetValueWithoutNotify(settings.MasterVolume);
-            _musicSlider.SetValueWithoutNotify(settings.MusicVolume);
-            _sfxSlider.SetValueWithoutNotify(settings.SfxVolume);
-
-            if (_statusText != null)
-                _statusText.text = "";
 
             _mainPanel.SetActive(false);
             _settingsPanel.SetActive(true);
-            Select(_resolutionDropdown.gameObject);
+            Select(_settingsUI.FirstSelected);
         }
 
         public void ApplySettings()
         {
-            if (_transition.IsBusy || GameSettings.Instance == null)
-                return;
-
-            GameSettings.Instance.Apply(
-                _resolutionDropdown.value,
-                _fullscreenToggle.isOn,
-                _vSyncToggle.isOn,
-                _masterSlider.value,
-                _musicSlider.value,
-                _sfxSlider.value);
-
-            if (_statusText != null)
-                _statusText.text = "Cambios aplicados y guardados.";
+            if (!_transition.IsBusy)
+                _settingsUI.Apply();
         }
 
         public void CloseSettings()
         {
             if (_transition.IsBusy)
                 return;
+
+            _settingsUI.CancelPreview();
+            _settingsUI.CloseDropdown();
 
             _settingsPanel.SetActive(false);
             _mainPanel.SetActive(true);
@@ -129,6 +89,37 @@ namespace FinalVFX.Menu
         {
             if (EventSystem.current != null)
                 EventSystem.current.SetSelectedGameObject(target);
+        }
+
+        private void OnEnable()
+        {
+            _cancelAction.Enable();
+        }
+
+        private void Update()
+        {
+            if (!Application.isFocused ||
+                _transition.IsBusy ||
+                !_settingsPanel.activeInHierarchy ||
+                !_cancelAction.WasPressedThisFrame())
+            {
+                return;
+            }
+
+            if (_settingsUI.IsDropdownOpen)
+                _settingsUI.CloseDropdown();
+            else
+                CloseSettings();
+        }
+
+        private void OnDisable()
+        {
+            _cancelAction?.Disable();
+        }
+
+        private void OnDestroy()
+        {
+            _cancelAction?.Dispose();
         }
     }
 }

@@ -13,6 +13,9 @@ namespace FinalVFX.Menu
         private const string Prefix = "FinalVFX.Settings.";
 
         private readonly List<Vector2Int> _resolutions = new();
+        private Vector2Int _runtimeResolution;
+        private bool _runtimeFullscreen;
+        private bool _runtimeInitialized;
 
         public IReadOnlyList<Vector2Int> Resolutions => _resolutions;
         public Vector2Int Resolution { get; private set; }
@@ -121,20 +124,42 @@ namespace FinalVFX.Menu
             SavePreferences();
         }
 
+        // Preview changes runtime state only. Public properties remain committed values.
+        public void Preview(int resolutionIndex, bool fullscreen, bool vSync,
+            float master, float music, float sfx)
+        {
+            resolutionIndex = Mathf.Clamp(resolutionIndex, 0, _resolutions.Count - 1);
+            ApplyRuntimeSettings(_resolutions[resolutionIndex], fullscreen, vSync,
+                Mathf.Clamp01(master), Mathf.Clamp01(music), Mathf.Clamp01(sfx));
+        }
+
+        public void RestoreSavedSettings() => ApplyRuntimeSettings();
+
         private void ApplyRuntimeSettings()
         {
-            QualitySettings.vSyncCount = VSync ? 1 : 0;
+            ApplyRuntimeSettings(Resolution, Fullscreen, VSync,
+                MasterVolume, MusicVolume, SfxVolume);
+        }
 
-            Screen.SetResolution(
-                Resolution.x,
-                Resolution.y,
-                Fullscreen
-                    ? FullScreenMode.FullScreenWindow
-                    : FullScreenMode.Windowed);
+        private void ApplyRuntimeSettings(Vector2Int resolution, bool fullscreen,
+            bool vSync, float master, float music, float sfx)
+        {
+            QualitySettings.vSyncCount = vSync ? 1 : 0;
 
-            SetMixerVolume("MasterVolume", MasterVolume);
-            SetMixerVolume("MusicVolume", MusicVolume);
-            SetMixerVolume("SfxVolume", SfxVolume);
+            // Audio slider changes must not repeatedly request a display-mode change.
+            if (!_runtimeInitialized || resolution != _runtimeResolution ||
+                fullscreen != _runtimeFullscreen)
+            {
+                Screen.SetResolution(resolution.x, resolution.y,
+                    fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed);
+                _runtimeResolution = resolution;
+                _runtimeFullscreen = fullscreen;
+                _runtimeInitialized = true;
+            }
+
+            SetMixerVolume("MasterVolume", master);
+            SetMixerVolume("MusicVolume", music);
+            SetMixerVolume("SfxVolume", sfx);
         }
 
         private void SetMixerVolume(string parameter, float value)

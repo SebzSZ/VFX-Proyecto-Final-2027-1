@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using FinalVFX.Combat;
 using FinalVFX.Player;
 using UnityEngine;
@@ -29,12 +29,15 @@ namespace FinalVFX.Menu
         [SerializeField] private Button _settingsButton;
         [SerializeField] private CanvasGroup _blackScreen;
 
-        [Header("Input")]
+        [Header("Pause")]
+        [SerializeField] private InputActionReference _pauseReference;
+        [SerializeField] private InputActionReference _cancelReference;
+
         [SerializeField]
-        private InputAction _pauseAction = new InputAction(
-            "Pause",
-            InputActionType.Button,
-            "<Keyboard>/escape");
+        private UnityEngine.InputSystem.UI.InputSystemUIInputModule _uiInputModule;
+
+        private InputAction _pauseAction;
+        private InputAction _cancelAction;
 
         [Header("Return to menu")]
         [SerializeField] private string _menuScene = "SCN_MainMenu";
@@ -63,6 +66,12 @@ namespace FinalVFX.Menu
 
         private void Awake()
         {
+            _pauseAction = _pauseReference.action.Clone();
+            _cancelAction = _cancelReference.action.Clone();
+
+            // Durante el juego o la selección de armas no hay menú interactivo.
+            _uiInputModule.enabled = false;
+
             _pauseRoot.SetActive(false);
             _settingsPanel.SetActive(false);
 
@@ -74,6 +83,7 @@ namespace FinalVFX.Menu
         private void OnEnable()
         {
             _pauseAction.Enable();
+            _cancelAction.Enable();
         }
 
         private void Update()
@@ -85,13 +95,30 @@ namespace FinalVFX.Menu
             if (_leaving || _resuming || !Application.isFocused)
                 return;
 
-            if (!PausePressedThisFrame)
+            bool cancelPressed = _cancelAction.WasPressedThisFrame();
+
+            if (!_ownsPause)
+            {
+                if (PausePressedThisFrame)
+                    Pause();
+
+                return;
+            }
+
+            if (!PausePressedThisFrame && !cancelPressed)
                 return;
 
-            if (_ownsPause)
-                Resume();
-            else
-                Pause();
+            if (_settingsPanel.activeInHierarchy)
+            {
+                if (_settingsUI.IsDropdownOpen)
+                    _settingsUI.CloseDropdown();
+                else
+                    BackToPause();
+
+                return;
+            }
+
+            Resume();
         }
 
         private void LateUpdate()
@@ -132,6 +159,8 @@ namespace FinalVFX.Menu
             _mainPanel.SetActive(true);
             _pauseRoot.SetActive(true);
 
+            _uiInputModule.enabled = true;
+
             Select(_resumeButton.gameObject);
         }
 
@@ -141,7 +170,9 @@ namespace FinalVFX.Menu
                 return;
 
             _resuming = true;
+            _settingsUI.CancelPreview();
             _settingsUI.CloseDropdown();
+            _uiInputModule.enabled = false;
             _pauseRoot.SetActive(false);
             Select(null);
 
@@ -176,6 +207,7 @@ namespace FinalVFX.Menu
             if (!_ownsPause || _resuming || _leaving)
                 return;
 
+            _settingsUI.CancelPreview();
             _settingsUI.CloseDropdown();
             _settingsPanel.SetActive(false);
             _mainPanel.SetActive(true);
@@ -197,6 +229,8 @@ namespace FinalVFX.Menu
             }
 
             _leaving = true;
+            _uiInputModule.enabled = false;
+            _settingsUI.CancelPreview();
             _settingsUI.CloseDropdown();
             Select(null);
 
@@ -269,7 +303,12 @@ namespace FinalVFX.Menu
 
         private void OnDisable()
         {
-            _pauseAction.Disable();
+            _pauseAction?.Disable();
+            _cancelAction?.Disable();
+
+            if (_uiInputModule != null)
+                _uiInputModule.enabled = false;
+
             StopAllCoroutines();
             RestoreGameplay();
 
@@ -284,7 +323,8 @@ namespace FinalVFX.Menu
 
         private void OnDestroy()
         {
-            _pauseAction.Dispose();
+            _pauseAction?.Dispose();
+            _cancelAction?.Dispose();
         }
     }
 }

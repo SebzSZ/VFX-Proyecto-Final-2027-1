@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,6 +7,7 @@ namespace FinalVFX.Core
     [DisallowMultipleComponent]
     public sealed class WeaponSelectionInput : MonoBehaviour
     {
+        [SerializeField] private InputActionReference _mouseNavigateReference;
         [SerializeField] private InputActionReference _navigateReference;
         [SerializeField] private InputActionReference _confirmReference;
         [SerializeField, Min(1f)] private float _mouseSelectionDistance = 30f;
@@ -26,20 +27,28 @@ namespace FinalVFX.Core
 
         public bool ValidateSetup()
         {
-            if (_navigateReference != null && _navigateReference.action != null &&
-                _confirmReference != null && _confirmReference.action != null)
+            if (_navigateReference != null &&
+                _navigateReference.action != null &&
+                _confirmReference != null &&
+                _confirmReference.action != null &&
+                _mouseNavigateReference != null &&
+                _mouseNavigateReference.action != null)
+            {
                 return true;
-            Debug.LogError("WeaponSelectionInput necesita las acciones Navigate y Confirm.", this);
+            }
+
+            Debug.LogError(
+                "WeaponSelectionInput necesita Navigate, Confirm y MouseNavigate.",
+                this);
+
             return false;
         }
 
         public void Initialize()
         {
-            // Private instances preserve the actions used by other systems.
             _navigate = _navigateReference.action.Clone();
             _confirm = _confirmReference.action.Clone();
-            _mouseNavigate = new InputAction("WeaponSelectionMouse", InputActionType.Value,
-                "<Mouse>/delta", expectedControlType: "Vector2");
+            _mouseNavigate = _mouseNavigateReference.action.Clone();
         }
 
         public void BeginSelection()
