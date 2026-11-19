@@ -36,11 +36,7 @@ namespace FinalVFX.Player
         public void Tick(Vector3 direction, bool sprintHeld, bool jumpPressed, bool acceptInput, float deltaTime)
         {
             // Si se agota la stamina hay que soltar el sprint antes de poder volver a correr
-            if (!sprintHeld)
-                _mustReleaseSprint = false;
-
-            if (sprintHeld && _stamina.Current <= 0f)
-                _mustReleaseSprint = true;
+            UpdateSprintRelease(sprintHeld);
 
             if (!acceptInput)
             {
@@ -86,6 +82,23 @@ namespace FinalVFX.Player
             _motor.Simulate(deltaTime);
         }
 
+        // El esquive conduce el motor, pero se conserva la regla de soltar sprint.
+        public void Suspend(bool sprintHeld)
+        {
+            IsSprinting = false;
+
+            UpdateSprintRelease(sprintHeld);
+        }
+
+        private void UpdateSprintRelease(bool sprintHeld)
+        {
+            if (!sprintHeld)
+                _mustReleaseSprint = false;
+
+            if (sprintHeld && _stamina.Current <= 0f)
+                _mustReleaseSprint = true;
+        }
+
         private float ResolveGroundSpeed(bool hasMovement, bool sprintHeld, float deltaTime)
         {
             if (!hasMovement || !sprintHeld || _mustReleaseSprint)
@@ -120,3 +133,5 @@ namespace FinalVFX.Player
         }
     }
 }
+
+

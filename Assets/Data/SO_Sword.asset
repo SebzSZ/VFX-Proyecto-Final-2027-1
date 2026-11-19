@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68e8c5d5ea608f4408d8fac2642f19b0, type: 3}
+  m_Name: SO_Sword
+  m_EditorClassIdentifier: Assembly-CSharp::FinalVFX.Combat.WeaponDefinition
+  _displayName: Espada de Fuerzas Divididas
+  _equippedPrefab: {fileID: 1523577948448731715, guid: c4c320c470fec9f45af0194a4ea7d4f5, type: 3}
+  _maximumHealth: 120
+  _maximumStamina: 80
+  _localPosition: {x: -0.067, y: 0.196, z: -0.228}
+  _localEulerAngles: {x: -100, y: -10, z: -65}
+  _localScale: {x: 0.5, y: 0.5, z: 0.5}
+  _poseType: 1
+  _basicSteps:
+  - impact:
+      damage: 7
+      from: 0.3
+      until: 0.5
+    clip: {fileID: 6676633584517823413, guid: 453a84b1a51ed2047833ebd632588d89, type: 3}
+    soundEffect: {fileID: 8300000, guid: 1bf5ee8d09c440044b28585c34564d8f, type: 3}
+    fallbackDuration: 0.6
+    open: 0.5
+    close: 0.7
+    link: 0.8
+  - impact:
+      damage: 11
+      from: 0.3
+      until: 0.5
+    clip: {fileID: -1935123923279041325, guid: 453a84b1a51ed2047833ebd632588d89, type: 3}
+    soundEffect: {fileID: 8300000, guid: 1bf5ee8d09c440044b28585c34564d8f, type: 3}
+    fallbackDuration: 0.6
+    open: 0.5
+    close: 0.7
+    link: 0.8
+  _basicRestartDelay: 0.15
+  _secondary:
+    clip: {fileID: 0}
+    soundEffect: {fileID: 8300000, guid: 27fcf853e2d695143a80b71010f2e186, type: 3}
+    lockSeconds: 0.6
+  _ultimate:
+    clip: {fileID: 0}
+    lockSeconds: 1.2
+  _secondaryImpact:
+    damage: 25
+    from: 0.3
+    until: 0.5
+  _secondaryCooldown: 10
+  _ultimateCooldown: 45
+  _ultimateEffect:
+    duration: 30
+    swordBasicMultiplier: 1.5
+    swordShieldPerBasic: 15
+    scytheHealingPerBasic: 4
+    auraDamage: 3
+    auraInterval: 0.5
+    auraRadius: 5
+    auraHeight: 2
+    auraCenterHeight: 1

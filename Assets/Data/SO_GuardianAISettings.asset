@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57ce3e3d1afa29947aa82b340f3abaa4, type: 3}
+  m_Name: SO_GuardianAISettings
+  m_EditorClassIdentifier: Assembly-CSharp::FinalVFX.Boss.BossAISettings
+  VisionDistance: 20
+  MeleeDistance: 2.5
+  ChaseStoppingDistance: 1.8
+  NearDistance: 4
+  FarDistance: 12
+  DecisionInterval: 2
+  RepeatMultiplier: 0.25
+  Attacks:
+  - Id: 0
+    NearWeight: 2
+    FarWeight: 5
+    Cooldown: 6
+    MeleeWeight: 1
+  - Id: 1
+    NearWeight: 1
+    FarWeight: 6
+    Cooldown: 7
+    MeleeWeight: 1
+  - Id: 2
+    NearWeight: 6
+    FarWeight: 1
+    Cooldown: 8
+    MeleeWeight: 1
+  - Id: 3
+    NearWeight: 2
+    FarWeight: 2
+    Cooldown: 10
+    MeleeWeight: 1
+  - Id: 4
+    NearWeight: 0
+    FarWeight: 0
+    Cooldown: 1.5
+    MeleeWeight: 12
+  - Id: 5
+    NearWeight: 4
+    FarWeight: 8
+    Cooldown: 3
+    MeleeWeight: 1

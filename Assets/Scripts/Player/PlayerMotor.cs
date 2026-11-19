@@ -22,6 +22,7 @@ namespace FinalVFX.Player
         public bool IsGrounded => _characterController.isGrounded && _verticalSpeed <= 0f;
         public Vector3 Velocity => _horizontalVelocity + Vector3.up * _verticalSpeed;
 
+
         private void Awake()
         {
             _characterController = GetComponent<CharacterController>();
@@ -35,7 +36,8 @@ namespace FinalVFX.Player
                 return;
 
             Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, _rotationSpeed * deltaTime);
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation, targetRotation, _rotationSpeed * deltaTime);
         }
 
         public void Jump(float height)
@@ -63,13 +65,39 @@ namespace FinalVFX.Player
             Vector3 velocity = _horizontalVelocity;
             velocity.y = (previousVerticalSpeed + _verticalSpeed) * 0.5f;
 
-            CollisionFlags collisions = _characterController.Move(velocity * deltaTime);
+            Vector3 displacement = FinalVFX.Boss.BossFogBarrier.Constrain(
+                _characterController, velocity * deltaTime);
+            CollisionFlags collisions = _characterController.Move(displacement);
 
             if ((collisions & CollisionFlags.Above) != 0 && _verticalSpeed > 0f)
                 _verticalSpeed = 0f;
 
             Vector3 actualVelocity = _characterController.velocity;
             _horizontalVelocity = new Vector3(actualVelocity.x, 0f, actualVelocity.z);
+        }
+
+        // Un solo Move por frame. Conserva la velocidad vertical y la orientación.
+        public void SimulatePush(Vector3 displacement, float deltaTime)
+        {
+            _horizontalVelocity = displacement / deltaTime;
+            Simulate(deltaTime);
+            _horizontalVelocity = Vector3.zero;
+        }
+
+        public Vector3 FaceTarget(Transform target)
+        {
+            if (target == null)
+                return transform.forward;
+
+            Vector3 forward = target.position - transform.position;
+            forward.y = 0f;
+
+            if (forward.sqrMagnitude < 0.0001f)
+                return transform.forward;
+
+            forward.Normalize();
+            transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+            return forward;
         }
 
         public void ResetMotion()
@@ -86,3 +114,4 @@ namespace FinalVFX.Player
         }
     }
 }
+
